@@ -34,7 +34,7 @@ canBack();
 // 在当前tab页中后退   [不压栈]-[浏览器不压栈]
 back();
 
-// 选中tab页   [压栈]
+// 选中tab页   [压栈]-[浏览器压栈]
 selectTab(tabId: number);
 
 // 删除tab页   [清空栈]-[浏览器不压栈]
