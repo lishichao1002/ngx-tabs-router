@@ -16,11 +16,17 @@
 ```js
 
 
-// 打开新tab页并渲染默认组件   [压栈]-[浏览器压栈]
+// 打开新tab页并渲染默认组件   [不压栈]-[浏览器压栈]
 addTab(default_component: Component);
 
-// 在当前tab页渲染新组件   [压栈]-[浏览器压栈]
+// 打开新tab页并渲染默认路由  [压栈]-[浏览器压栈]
+addTab(route_url: string)
+
+// 在当前tab页渲染新组件   [不压栈]-[浏览器压栈]
 addComponent(component: Component);
+
+// 在当前tab页渲染新路由  [压栈]-[浏览器压栈]
+addComponent(route_url: string);
 
 // 当前是否能够前进
 canGo();
