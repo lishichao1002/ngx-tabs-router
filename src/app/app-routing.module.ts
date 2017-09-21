@@ -12,6 +12,10 @@ const routes: Routes = [
     {
         path: 'demo2',
         component: Demo2Component
+    },
+    {
+        path: 'demo2/:a',
+        component: Demo2Component
     }
 ];
 

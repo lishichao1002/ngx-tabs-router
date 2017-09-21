@@ -1,28 +1,26 @@
-import {Component, OnDestroy, OnInit, Type} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from './router';
-import {Subscription} from 'rxjs/Subscription';
+import {TabsStore} from './tabs';
+
+let tabId: number = 0;
 
 @Component({
     selector: 'tabs-router',
     template: `
-        <ng-container *ngComponentOutlet="component"></ng-container>
+        <ng-container *ngFor="let tab of (tabsStore.onTabsChange | async)">
+            <tab-router [component]="tab.route?.component" [tabId]="tab.tabId" [class.hidden]="!tab.current"></tab-router>
+        </ng-container>
     `
 })
 export class TabsRouterComponent implements OnInit, OnDestroy {
 
-    component: Type<any>;
-    _routerSubscribe: Subscription;
-
-    constructor(private router: Router) {
+    constructor(public router: Router,
+                public tabsStore: TabsStore) {
     }
 
     ngOnInit() {
-        this._routerSubscribe = this.router.onRouterChange.subscribe((component: Type<any>) => {
-            this.component = component;
-        });
     }
 
     ngOnDestroy() {
-        this._routerSubscribe.unsubscribe();
     }
 }

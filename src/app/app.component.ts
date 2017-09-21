@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {TabsStore} from './router/tabs';
 
 @Component({
     selector: 'app-root',
@@ -6,5 +7,13 @@ import {Component} from '@angular/core';
     styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-    title = 'app';
+
+    constructor(private tabsStore: TabsStore) {
+
+    }
+
+    addTab() {
+        this.tabsStore.addTab();
+    }
+
 }

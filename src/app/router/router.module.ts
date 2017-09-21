@@ -1,9 +1,11 @@
 import {ModuleWithProviders, NgModule} from '@angular/core';
 import {TabsRouterComponent} from './tabs-router.component';
+import {TabRouterComponent} from './tab-router.component';
 import {Routes, ROUTES} from './types';
 import {CommonModule} from '@angular/common';
 import {RouterLinkDirective} from './router-link.directive';
 import {Router} from './router';
+import {TabsStore} from './tabs';
 
 @NgModule({
     imports: [
@@ -11,14 +13,17 @@ import {Router} from './router';
     ],
     declarations: [
         TabsRouterComponent,
+        TabRouterComponent,
         RouterLinkDirective
     ],
     exports: [
+        TabRouterComponent,
         TabsRouterComponent,
         RouterLinkDirective
     ],
     providers: [
-        Router
+        Router,
+        TabsStore
     ]
 })
 export class RouterModule {
