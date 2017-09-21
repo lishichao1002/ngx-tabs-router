@@ -1,28 +1,57 @@
 # NgxTabsRouter
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.3.0.
 
-## Development server
+## Router指令
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+```xml
+<router-tabs>
+    <router-tab [component]="BBSComponent" [tabid]="1" [current]="true"></router-tab>
+    <router-tab [component]="LogComponent" [tabid]="2" [current]="false"></router-tab>
+    <router-tab [component]="GSCComponent" [tabid]="3" [current]="false"></router-tab>
+</router-tabs>
+```
 
-## Code scaffolding
+## Router服务
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+```js
 
-## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
+// 打开新tab页并渲染默认组件   [压栈]-[浏览器压栈]
+addTab(default_component: Component);
 
-## Running unit tests
+// 在当前tab页渲染新组件   [压栈]-[浏览器压栈]
+addComponent(component: Component);
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+// 当前是否能够前进
+canGo();
 
-## Running end-to-end tests
+// 在当前tab页中前进   [不压栈]-[浏览器不压栈]
+go();
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-Before running the tests make sure you are serving the app via `ng serve`.
+// 当前是否能够后退
+canBack();
 
-## Further help
+// 在当前tab页中后退   [不压栈]-[浏览器不压栈]
+back();
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+// 选中tab页   [压栈]
+selectTab(tabId: number);
+
+// 删除tab页   [清空栈]-[浏览器不压栈]
+removeTab(tabId: number);
+
+```
+
+## Router事件
+
+```
+window.onpopstate = function(event){
+    let {tabId, component} = event;
+    if(router.current.tabId === tabId){
+        // 选中tab
+        addComponent(component);
+    }else{
+        alert('当前路由不可用');
+    }
+}
+```
