@@ -1,9 +1,15 @@
 import {InjectionToken, Type} from '@angular/core';
 
 export interface Route {
+    default?: boolean;
+    title: string;
     path: string;
     component: Type<any>;
     redirectTo?: string;
+}
+
+export interface RouteX extends Route {
+    href: string;
 }
 
 export type Params = {
@@ -20,8 +26,6 @@ export interface NavigationExtras {
 
     queryParams?: Params | null;
 
-    fragment?: string;
-
     queryParamsHandling?: QueryParamsHandling;
 }
 
@@ -31,12 +35,6 @@ export interface RelativePathAndRoute {
 }
 
 export interface FullPathAndRoute {
-    route: Route;
+    route?: Route;
     fullPath: string;
-}
-
-export interface TabRoute {
-    current: boolean;
-    route: Route;
-    tabId: number;
 }

@@ -3,3 +3,5 @@
 .hidden {
     display: none !important;
 }
+
+@import "../node_modules/bootstrap/dist/css/bootstrap.css";

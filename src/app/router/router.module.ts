@@ -1,29 +1,26 @@
 import {ModuleWithProviders, NgModule} from '@angular/core';
-import {TabsRouterComponent} from './tabs-router.component';
-import {TabRouterComponent} from './tab-router.component';
 import {Routes, ROUTES} from './types';
 import {CommonModule} from '@angular/common';
 import {RouterLinkDirective} from './router-link.directive';
 import {Router} from './router';
-import {TabsStore} from './tabs';
+import {RouterTabComponent, RouterTabsComponent} from './router-tabs.component';
 
 @NgModule({
     imports: [
         CommonModule
     ],
     declarations: [
-        TabsRouterComponent,
-        TabRouterComponent,
+        RouterTabsComponent,
+        RouterTabComponent,
         RouterLinkDirective
     ],
     exports: [
-        TabRouterComponent,
-        TabsRouterComponent,
+        RouterTabsComponent,
+        RouterTabComponent,
         RouterLinkDirective
     ],
     providers: [
-        Router,
-        TabsStore
+        Router
     ]
 })
 export class RouterModule {
