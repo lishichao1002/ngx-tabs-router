@@ -10,6 +10,10 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 const baseUrl = location.protocol + '//' + location.host + '/';
 
+const log = function (msg) {
+    console.log('[Router] --> ', msg);
+};
+
 @Injectable()
 export class Router {
 
@@ -26,13 +30,22 @@ export class Router {
     }
 
     private _init() {
-        this._current_tab = new RouterTab();
-        this._tabs = List([this._current_tab]);
-        this._tabs_order = List([this._current_tab]);
+        // this._current_tab = new RouterTab();
+        // this._tabs = List([this._current_tab]);
+        // this._tabs_order = List([this._current_tab]);
+        this._tabs = List([]);
+        this._tabs_order = List(this._tabs);
         this._tabsSubject = new BehaviorSubject<List<RouterTab>>(this._tabs);
         this._canGoSubject = new BehaviorSubject(false);
         this._canBackSubject = new BehaviorSubject(false);
+        this.addTab(); // init default tab
         this._initDefaultRoute();
+        window.onpopstate = this.onPopStateEvent.bind(this);
+    }
+
+    onPopStateEvent(event) {
+        log(event);
+        this._analysisHrefAndPushState();
     }
 
     get onTabsChange(): Observable<List<RouterTab>> {
@@ -41,6 +54,8 @@ export class Router {
 
     // 打开新tab页并渲染默认路由  [压栈]-[浏览器压栈]
     addTab() {
+        log('addTab');
+
         this._tabs.forEach((tab, index) => {
             this._tabs.update(index, (value => {
                 value.selected = false;
@@ -48,18 +63,20 @@ export class Router {
             }));
         });
         this._current_tab = new RouterTab();
-        this._tabs = this._tabs.push(this._current_tab);
-        this._tabs_order = this._tabs_order.push(this._current_tab);
+        // this._tabs = this._tabs.push(this._current_tab);
+        // this._tabs_order = this._tabs_order.push(this._current_tab);
         this._tabsSubject.next(this._tabs);
         this._canGoSubject.next(this.canGo());
         this._canBackSubject.next(this.canBack());
 
-        let uri = new URI(window.location.href).fragment(`${this._current_tab.tabId}`);
-        window.history.replaceState({}, null, uri.toString());
+        let uri = new URI(baseUrl).fragment(`${this._current_tab.tabId}`).toString();
+        window.history.replaceState(JSON.stringify({href: uri}), null, uri);
     }
 
     // 选中tab页   [压栈]-[浏览器压栈]
     selectTab(tabId: number) {
+        log(`select tab ${tabId}`);
+
         let tabs = this._tabs.filter((tab) => tab.tabId == tabId).toArray();
         if (tabs.length == 0) throw Error(`tabId(${tabId})非法`);
 
@@ -75,8 +92,10 @@ export class Router {
         this._canGoSubject.next(this.canGo());
         this._canBackSubject.next(this.canBack());
 
-        let uri = new URI(window.location.href).fragment(`${this._current_tab.tabId}`);
-        window.history.replaceState({}, null, uri.toString());
+        let href = this._current_tab.current ? this._current_tab.current.href : baseUrl;
+        let query = new URI(window.location.href).query();
+        let uri = new URI(href).query(query).fragment(`${this._current_tab.tabId}`).toString();
+        window.history.replaceState(JSON.stringify({href: uri}), null, uri);
     }
 
     // 删除tab页   [清空栈]-[浏览器不压栈]
@@ -107,14 +126,15 @@ export class Router {
         if (null === fpr) throw Error('路由不存在' + commands[0]);
 
         let {route, fullPath} = fpr;
-        this._current_tab.addRoute({
+        let routex = {
             ...route,
             href: fullPath
-        });
+        };
+        this._current_tab.addRoute(routex);
         this._canGoSubject.next(this.canGo());
         this._canBackSubject.next(this.canBack());
 
-        window.history.pushState({}, null, fullPath);
+        window.history.pushState(JSON.stringify(routex), null, fullPath);
     }
 
     // 当前是否能够前进
@@ -142,7 +162,7 @@ export class Router {
             this._canGoSubject.next(this.canGo());
             this._canBackSubject.next(this.canBack());
 
-            window.history.replaceState({}, null, this._current_tab.current.href);
+            window.history.replaceState(JSON.stringify(this._current_tab.current), null, this._current_tab.current.href);
         } else {
             throw Error('当前Tab的历史堆栈已经在栈顶，不能再前进了');
         }
@@ -155,7 +175,7 @@ export class Router {
             this._canGoSubject.next(this.canGo());
             this._canBackSubject.next(this.canBack());
 
-            window.history.replaceState({}, null, this._current_tab.current.href);
+            window.history.replaceState(JSON.stringify(this._current_tab.current), null, this._current_tab.current.href);
         } else {
             throw Error('当前Tab的历史堆栈已经在栈底，不能再后退了');
         }
@@ -220,6 +240,8 @@ export class Router {
     }
 
     private _initDefaultRoute() {
+        log('init default route');
+
         let routes: Route[] = this._routers.filter((route: Route) => route.default);
         if (routes.length == 1) {
             this._default_route = routes[0];
@@ -229,9 +251,6 @@ export class Router {
         let route_path: string = uri.path().substring(1);
         let query: any = uri.query(true);
 
-        if (route_path) {
-
-        }
         let fpar: FullPathAndRoute = this.getFullPathAndRoute([route_path], {
             queryParams: query
         });
@@ -241,10 +260,28 @@ export class Router {
         }
 
         let {fullPath, route} = fpar;
-        this._current_tab.addRoute({
+        let routex = {
             ...route,
             href: fullPath
-        });
-        window.history.replaceState({}, null, fullPath);
+        };
+        this._current_tab.addRoute(routex);
+        window.history.replaceState(JSON.stringify(routex), null, fullPath);
+    }
+
+    private _analysisHrefAndPushState() {
+        let uri = new URI(window.location.href).fragment('').query('').toString();
+        let query: any = new URI(window.location.href).query(true);
+        let route_path = uri.substring(baseUrl.length);
+        let fpar: FullPathAndRoute = this.getFullPathAndRoute([route_path], {
+                queryParams: query
+            }) || this.getFullPathAndRoute([this._default_route.path]);
+
+        let {fullPath, route} = fpar;
+        let routex = {
+            ...route,
+            href: fullPath
+        };
+        this._current_tab.addRoute(routex);
+        window.history.replaceState(JSON.stringify(routex), null, fullPath);
     }
 }

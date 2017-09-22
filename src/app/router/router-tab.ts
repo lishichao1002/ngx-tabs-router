@@ -1,4 +1,4 @@
-import {Route, RouteX} from './types';
+import {RouteX} from './types';
 
 let tabId: number = 0;
 
@@ -33,6 +33,7 @@ export class RouterTab {
         this._stack.push(route);
         this._stack_pointer++;
         this._current = route;
+        console.log(this._stack_pointer, this._stack.map(item => item.title).join(','));
     }
 
     canBack(): boolean {
@@ -48,6 +49,7 @@ export class RouterTab {
             this._stack_pointer--;
             this._current = this._stack[this._stack_pointer];
         }
+        console.log(this._stack_pointer, this._stack.map(item => item.title).join(','));
     }
 
     go() {
@@ -55,5 +57,6 @@ export class RouterTab {
             this._stack_pointer++;
             this._current = this._stack[this._stack_pointer];
         }
+        console.log(this._stack_pointer, this._stack.map(item => item.title).join(','));
     }
 }
