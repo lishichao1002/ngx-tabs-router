@@ -1,4 +1,4 @@
-import {RouteX} from './types';
+import {UrlTree} from './pojo/url_tree';
 
 let tabId: number = 0;
 
@@ -8,8 +8,8 @@ export class RouterTab {
 
     private _tabId: number;
     private _stack_pointer: number;
-    private _stack: RouteX[];
-    private _current: RouteX;
+    private _stack: UrlTree[];
+    private _current: UrlTree;
 
     constructor() {
         this.selected = true;
@@ -18,7 +18,7 @@ export class RouterTab {
         this._stack_pointer = -1;
     }
 
-    get current(): RouteX {
+    get current(): UrlTree {
         return this._current;
     }
 
@@ -26,14 +26,14 @@ export class RouterTab {
         return this._tabId;
     }
 
-    addRoute(route: RouteX) {
+    addRoute(route: UrlTree) {
         if (this.canGo()) {
             this._stack = this._stack.slice(0, this._stack_pointer);
         }
         this._stack.push(route);
         this._stack_pointer++;
         this._current = route;
-        console.log(this._stack_pointer, this._stack.map(item => item.title).join(','));
+        console.log(this._stack_pointer, this._stack.map(item => item.route.title).join(','));
     }
 
     canBack(): boolean {
@@ -49,7 +49,7 @@ export class RouterTab {
             this._stack_pointer--;
             this._current = this._stack[this._stack_pointer];
         }
-        console.log(this._stack_pointer, this._stack.map(item => item.title).join(','));
+        console.log(this._stack_pointer, this._stack.map(item => item.route.title).join(','));
     }
 
     go() {
@@ -57,6 +57,6 @@ export class RouterTab {
             this._stack_pointer++;
             this._current = this._stack[this._stack_pointer];
         }
-        console.log(this._stack_pointer, this._stack.map(item => item.title).join(','));
+        console.log(this._stack_pointer, this._stack.map(item => item.route.title).join(','));
     }
 }

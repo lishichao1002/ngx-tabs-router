@@ -1,6 +1,6 @@
 import {Directive, HostBinding, HostListener, Input, OnChanges} from '@angular/core';
-import {Router} from './router';
-import {QueryParamsHandling} from './types';
+import {Router} from '../router';
+import {QueryParamsHandling} from '../pojo/params';
 
 export type String = string;
 export type StringResolver = () => string;
@@ -52,10 +52,10 @@ export class RouterLinkDirective implements OnChanges {
     }
 
     ngOnChanges(changes: {}): any {
-        this.href = this.router.getFullPathAndRoute(this._commands, {
-            queryParams: this.queryParams,
-            queryParamsHandling: this.queryParamsHandling
-        }).fullPath;
+        // this.href = this.router.getFullPathAndRoute(this._commands, {
+        //     queryParams: this.queryParams,
+        //     queryParamsHandling: this.queryParamsHandling
+        // }).fullPath;
     }
 
 
