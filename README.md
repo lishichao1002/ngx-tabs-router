@@ -4,60 +4,61 @@
 ## Router指令
 
 ```xml
-<router-tabs>
-    <router-tab [component]="BBSComponent" [tabid]="1" [current]="true"></router-tab>
-    <router-tab [component]="LogComponent" [tabid]="2" [current]="false"></router-tab>
-    <router-tab [component]="GSCComponent" [tabid]="3" [current]="false"></router-tab>
-</router-tabs>
+<router-tabs></router-tabs>
 ```
 
 ## Router服务
 
 ```js
+get params(): Observable<Params>
 
+get events(): Observable<any>
 
-// 打开新tab页并渲染默认组件   [不压栈]-[浏览器压栈]
-addTab(default_component: Component);
+get snapshot(): Params
 
-// 打开新tab页并渲染默认路由  [压栈]-[浏览器压栈]
-addTab(route_url: string)
+tabId(): number
 
-// 在当前tab页渲染新组件   [不压栈]-[浏览器压栈]
-addComponent(component: Component);
+addTab(): void
 
-// 在当前tab页渲染新路由  [压栈]-[浏览器压栈]
-addComponent(route_url: string);
+selectTab(tabId: number): void
 
-// 当前是否能够前进
-canGo();
+removeTab(tabId: number): void
 
-// 在当前tab页中前进   [不压栈]-[浏览器不压栈]
-go();
+navigate(commands: any[] | string, extras?: NavigationExtras)
 
-// 当前是否能够后退
-canBack();
+navigateByUrl(commands: any[] | string, extras?: NavigationExtras)
 
-// 在当前tab页中后退   [不压栈]-[浏览器不压栈]
-back();
+canGo(): boolean
 
-// 选中tab页   [压栈]-[浏览器压栈]
-selectTab(tabId: number);
+get canGo$(): Observable<boolean>
 
-// 删除tab页   [清空栈]-[浏览器不压栈]
-removeTab(tabId: number);
+canBack(): boolean
+
+get canBack$(): Observable<boolean>
+
+go(): void
+
+back(): void
 
 ```
 
-## Router事件
+## routerLink指令
 
 ```
-window.onpopstate = function(event){
-    let {tabId, component} = event;
-    if(router.current.tabId === tabId){
-        // 选中tab
-        addComponent(component);
-    }else{
-        alert('当前路由不可用');
-    }
-}
+<a [routerLink]="['/user/bob']" [queryParams]="{debug: true}" queryParamsHandling="merge">
+   link to user component
+</a>
 ```
+
+## routerLinkActive指令
+
+```
+<a routerLink="/user/bob" routerLinkActive="class1 class2">Bob</a>
+<a routerLink="/user/bob" [routerLinkActive]="['class1', 'class2']">Bob</a>
+
+<div routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
+   <a routerLink="/user/jim">Jim</a>
+   <a routerLink="/user/bob">Bob</a>
+</div>
+```
+
