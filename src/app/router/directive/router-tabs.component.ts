@@ -17,6 +17,7 @@ import 'rxjs/add/operator/map';
 export class RouterTabsComponent implements OnInit {
 
     private tabs: { componentRef: ComponentRef<RouterTabComponent>, routerTab: RouterTab }[];
+    private tabs_order: { componentRef: ComponentRef<RouterTabComponent>, routerTab: RouterTab }[];
     private tabs_sub: Subject<{ componentRef: ComponentRef<RouterTabComponent>, routerTab: RouterTab }[]>;
 
     currentTab: { componentRef: ComponentRef<RouterTabComponent>, routerTab: RouterTab };
@@ -27,6 +28,7 @@ export class RouterTabsComponent implements OnInit {
     constructor(private router: Router,
                 private resolver: ComponentFactoryResolver) {
         this.tabs = [];
+        this.tabs_order = [];
         this.tabs_sub = new BehaviorSubject(this.tabs);
     }
 
@@ -48,10 +50,12 @@ export class RouterTabsComponent implements OnInit {
         component.hidden = !routerTab.selected;
         routerTab.outlet = component;
 
-        this.tabs.push({
+        let tab = {
             componentRef: componentRef,
             routerTab: routerTab
-        });
+        };
+        this.tabs.push(tab);
+        this.tabs_order.push(tab);
 
         this.tabs_sub.next(this.tabs);
     }
@@ -61,10 +65,22 @@ export class RouterTabsComponent implements OnInit {
             let {componentRef, routerTab} = this.tabs[i];
             let component: RouterTabComponent = componentRef.instance;
             if (routerTab.tabId == tabId) {
+                routerTab.selected = true;
                 component.hidden = false;
                 this.currentTab = this.tabs[i];
             } else {
+                routerTab.selected = false;
                 component.hidden = true;
+            }
+        }
+
+        //排序
+        for (let i = 0; i < this.tabs_order.length; i++) {
+            let tab = this.tabs_order[i];
+            let {routerTab} = tab;
+            if (routerTab.tabId == tabId) {
+                this.tabs_order.splice(i, 1).push(tab);
+                break;
             }
         }
 
@@ -72,21 +88,27 @@ export class RouterTabsComponent implements OnInit {
     }
 
     removeTab(tabId: number) {
-        for (let i = 0; i < this.tabs.length; i++) {
-            let {componentRef, routerTab} = this.tabs[i];
-            if (routerTab.tabId == tabId) {
-                componentRef.destroy();
-                this.tabs.splice(i);
+        if (this.tabs.length == 1) throw Error(`当前只有一个tab页,不能被删除`);
 
-                if (this.currentTab == this.tabs[i]) {
-                    this.currentTab = null;
-                    //TODO 选中上一个
-                }
+        let tabs = this.tabs.filter((tab) => tab.routerTab.tabId == tabId);
+        if (tabs.length === 0) throw Error(`tabId(${tabId})非法`);
 
-                this.tabs_sub.next(this.tabs);
-                return;
-            }
+        let will_deleted = tabs[0];
+        let index = this.tabs.indexOf(will_deleted);
+        this.tabs.splice(index, 1);
+
+        tabs = this.tabs_order.filter((tab) => tab.routerTab.tabId == tabId);
+        will_deleted = tabs[0];
+        index = this.tabs_order.indexOf(will_deleted);
+        this.tabs_order.splice(index, 1);
+
+        will_deleted.componentRef.destroy();
+
+        if (will_deleted.routerTab.selected) {
+            this.selectTab(this.tabs_order[this.tabs_order.length - 1].routerTab.tabId);
         }
+
+        this.tabs_sub.next(this.tabs);
     }
 
     navigate(urlState: UrlState) {
@@ -106,4 +128,5 @@ export class RouterTabsComponent implements OnInit {
         this.currentTab.componentRef.instance.destroyComponent();
         this.currentTab.componentRef.instance.initComponent();
     }
+
 }

@@ -13,6 +13,7 @@ const _init_url = window.location.href;
 @Injectable()
 export class Router {
 
+    private _tabs_sub: Subject<RouterTab[]>;
     private _params_sub: Subject<Params>;
     private _event_sub: Subject<any>;
     private _url_sub: Subject<string>;
@@ -23,6 +24,7 @@ export class Router {
 
     constructor(private urlParser: UrlParser,
                 private location: Location) {
+        this._tabs_sub = new BehaviorSubject([]);
         this._params_sub = new BehaviorSubject({});
         this._event_sub = new Subject();
         this._url_sub = new BehaviorSubject(_init_url);
@@ -51,6 +53,9 @@ export class Router {
                 fragment: urlState.fragment
             });
         });
+        this.outlets.routerTabs.subscribe((tabs) => {
+            this._tabs_sub.next(tabs);
+        });
     }
 
     private _initDefaultState() {
@@ -69,7 +74,7 @@ export class Router {
     }
 
     get tabs(): Observable<RouterTab[]> {
-        return this.outlets.routerTabs;
+        return this._tabs_sub.asObservable();
     }
 
     /**
