@@ -1,36 +1,47 @@
-import {Component, ComponentFactory, ComponentFactoryResolver, ComponentRef, ViewChild, ViewContainerRef} from '@angular/core';
+import {Component, ComponentFactory, ComponentFactoryResolver, ComponentRef, OnInit, ViewChild, ViewContainerRef} from '@angular/core';
 import {Router} from '../router';
 import {RouterTab} from '../router_tab';
 import {RouterTabComponent} from './router-tab.component';
+import {UrlState} from '../pojo/url_state';
+import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import 'rxjs/add/operator/map';
 
 @Component({
     selector: 'router-tabs',
     template: `
-        <!--<ng-container *ngFor="let tab of (tabs$ | async)">-->
-        <!--<router-tab [routerTab]="tab" [class.hidden]="!tab.selected" #routetab></router-tab>-->
-        <!--</ng-container>-->
         <ng-container #container></ng-container>
     `
 })
-export class RouterTabsComponent {
+export class RouterTabsComponent implements OnInit {
 
-    // tabs$: Observable<RouterTab[]>;
+    private tabs: { componentRef: ComponentRef<RouterTabComponent>, routerTab: RouterTab }[];
+    private tabs_sub: Subject<{ componentRef: ComponentRef<RouterTabComponent>, routerTab: RouterTab }[]>;
 
-    private tabs: { componentRef: ComponentRef<RouterTabComponent>, routerTab: RouterTab }[] = [];
+    currentTab: { componentRef: ComponentRef<RouterTabComponent>, routerTab: RouterTab };
 
     @ViewChild('container', {read: ViewContainerRef})
-    private _container: ViewContainerRef;
+    private container: ViewContainerRef;
 
     constructor(private router: Router,
                 private resolver: ComponentFactoryResolver) {
-        // this.tabs$ = this.router.tabs;
+        this.tabs = [];
+        this.tabs_sub = new BehaviorSubject(this.tabs);
     }
 
-    private _current_tab: { componentRef: ComponentRef<RouterTabComponent>, routerTab: RouterTab };
+    ngOnInit() {
+        this.router.outlets = this;
+        this.router._init();
+    }
+
+    get routerTabs(): Observable<RouterTab[]> {
+        return this.tabs_sub.asObservable().map((items) => items.map(item => item.routerTab));
+    }
 
     addTab(routerTab: RouterTab) {
         const factory: ComponentFactory<RouterTabComponent> = this.resolver.resolveComponentFactory(RouterTabComponent);
-        let componentRef: ComponentRef<RouterTabComponent> = this._container.createComponent(factory);
+        let componentRef: ComponentRef<RouterTabComponent> = this.container.createComponent(factory);
 
         let component: RouterTabComponent = componentRef.instance;
         component.routerTab = routerTab;
@@ -41,6 +52,8 @@ export class RouterTabsComponent {
             componentRef: componentRef,
             routerTab: routerTab
         });
+
+        this.tabs_sub.next(this.tabs);
     }
 
     selectTab(tabId: number) {
@@ -49,11 +62,13 @@ export class RouterTabsComponent {
             let component: RouterTabComponent = componentRef.instance;
             if (routerTab.tabId == tabId) {
                 component.hidden = false;
-                this._current_tab = this.tabs[i];
+                this.currentTab = this.tabs[i];
             } else {
                 component.hidden = true;
             }
         }
+
+        this.tabs_sub.next(this.tabs);
     }
 
     removeTab(tabId: number) {
@@ -63,15 +78,32 @@ export class RouterTabsComponent {
                 componentRef.destroy();
                 this.tabs.splice(i);
 
-                if (this._current_tab == this.tabs[i]) {
-                    this._current_tab = null;
+                if (this.currentTab == this.tabs[i]) {
+                    this.currentTab = null;
                     //TODO 选中上一个
                 }
 
+                this.tabs_sub.next(this.tabs);
                 return;
             }
         }
     }
 
+    navigate(urlState: UrlState) {
+        this.currentTab.routerTab.addRoute(urlState);
+        this.currentTab.componentRef.instance.destroyComponent();
+        this.currentTab.componentRef.instance.initComponent();
+    }
 
+    go() {
+        this.currentTab.routerTab.go();
+        this.currentTab.componentRef.instance.destroyComponent();
+        this.currentTab.componentRef.instance.initComponent();
+    }
+
+    back() {
+        this.currentTab.routerTab.back();
+        this.currentTab.componentRef.instance.destroyComponent();
+        this.currentTab.componentRef.instance.initComponent();
+    }
 }

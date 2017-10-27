@@ -37,7 +37,7 @@ export class RouterTab {
         this._stack.push(route);
         this._stack_pointer++;
         this._current = route;
-        console.log(this._stack_pointer, this._stack.map(item => item.route.title).join(','));
+        console.log(this.tabId, this._stack_pointer, this._stack.map(item => item.route.title).join(','));
     }
 
     canBack(): boolean {
@@ -53,7 +53,7 @@ export class RouterTab {
             this._stack_pointer--;
             this._current = this._stack[this._stack_pointer];
         }
-        console.log(this._stack_pointer, this._stack.map(item => item.route.title).join(','));
+        console.log(this.tabId, this._stack_pointer, this._stack.map(item => item.route.title).join(','));
     }
 
     go() {
@@ -61,6 +61,6 @@ export class RouterTab {
             this._stack_pointer++;
             this._current = this._stack[this._stack_pointer];
         }
-        console.log(this._stack_pointer, this._stack.map(item => item.route.title).join(','));
+        console.log(this.tabId, this._stack_pointer, this._stack.map(item => item.route.title).join(','));
     }
 }

@@ -21,6 +21,9 @@ export function provideLocationStrategy(platformLocationStrategy: PlatformLocati
         RouterLink,
         RouterLinkWithHref
     ],
+    entryComponents: [
+        RouterTabComponent
+    ],
     exports: [
         RouterTabsComponent,
         RouterTabComponent,
@@ -44,9 +47,7 @@ export class RouterModule {
                 {
                     provide: LocationStrategy,
                     useFactory: provideLocationStrategy,
-                    deps: [
-                        PlatformLocation, [new Inject(APP_BASE_HREF), new Optional()]
-                    ]
+                    deps: [PlatformLocation, [new Inject(APP_BASE_HREF), new Optional()]]
                 },
                 Location
             ]
