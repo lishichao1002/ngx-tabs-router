@@ -1,4 +1,12 @@
-import {Component, ComponentFactory, ComponentFactoryResolver, ComponentRef, OnInit, ViewChild, ViewContainerRef} from '@angular/core';
+import {
+    Component,
+    ComponentFactory,
+    ComponentFactoryResolver,
+    ComponentRef,
+    OnInit,
+    ViewChild,
+    ViewContainerRef
+} from '@angular/core';
 import {Router} from '../router';
 import {RouterTab} from '../router_tab';
 import {RouterTabComponent} from './router-tab.component';
@@ -79,7 +87,8 @@ export class RouterTabsComponent implements OnInit {
             let tab = this.tabs_order[i];
             let {routerTab} = tab;
             if (routerTab.tabId == tabId) {
-                this.tabs_order.splice(i, 1).push(tab);
+                this.tabs_order.splice(i, 1);
+                this.tabs_order.push(tab);
                 break;
             }
         }

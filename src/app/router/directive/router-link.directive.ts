@@ -15,7 +15,8 @@ export class RouterLink {
     constructor(private router: Router) {
     }
 
-    @Input() set routerLink(segments: any[] | string) {
+    @Input()
+    set routerLink(segments: any[] | string) {
         if (segments) {
             if (Array.isArray(segments)) {
                 this._segments = segments;
@@ -54,7 +55,7 @@ export class RouterLinkWithHref implements OnChanges, OnInit, OnDestroy {
 
     @HostBinding('attr.target') @Input() target: string;
     @Input() queryParams: { [k: string]: any };
-    @Input() queryParamsHandling: QueryParamsHandling;
+    @Input() queryParamsHandling: QueryParamsHandling = 'merge';
     @Input() disabled: boolean;
     @HostBinding() href: string;
 
@@ -64,7 +65,8 @@ export class RouterLinkWithHref implements OnChanges, OnInit, OnDestroy {
 
     private _segments: any[];
 
-    @Input() set routerLink(segments: any[] | string) {
+    @Input()
+    set routerLink(segments: any[] | string) {
         if (segments) {
             if (Array.isArray(segments)) {
                 this._segments = segments;

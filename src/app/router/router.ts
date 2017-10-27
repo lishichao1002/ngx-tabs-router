@@ -5,7 +5,7 @@ import {RouterTab} from './router_tab';
 import {NavigationExtras, Params} from './pojo/params';
 import {Subject} from 'rxjs/Subject';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UrlParser, UrlState} from './pojo/url_state';
+import {isQueryParamsEquals, isUrlStateLike, UrlParser, UrlState} from './pojo/url_state';
 import {RouterTabsComponent} from './directive/router-tabs.component';
 
 const _init_url = window.location.href;
@@ -141,7 +141,7 @@ export class Router {
      */
     selectTab(tabId: number): void {
         this.outlets.selectTab(tabId);
-        this._replaceState(this.outlets.currentTab.routerTab.current);
+        this._replaceState(this.outlets.currentTab.routerTab.current, null);
     }
 
     /**
@@ -162,9 +162,21 @@ export class Router {
      * 导航跳转
      */
     navigateByUrl(segments: any[] | string, extras?: NavigationExtras) {
-        let urlState: UrlState = this.urlParser.createUrlState(segments, extras);
-        this.outlets.navigate(urlState);
-        this._pushState(urlState);
+        let next_urlState: UrlState = this.urlParser.createUrlState(segments, extras);
+        let curr_urlState: UrlState = this.urlParser.parseUrlState(window.location.href);
+
+        if (next_urlState.href == curr_urlState.href) { //如果url相同则不跳转
+            console.log('路由相同，不跳转');
+            return;
+        }
+        if (isUrlStateLike(curr_urlState, next_urlState)) { //如果路由相同，url不同，即参数不同
+            console.log('路由相同，不跳转，但要更新路由参数');
+            this._replaceState(next_urlState, curr_urlState);
+            return;
+        }
+
+        this.outlets.navigate(next_urlState);
+        this._pushState(next_urlState, curr_urlState);
     }
 
 
@@ -202,7 +214,8 @@ export class Router {
     go(): void {
         if (this.canGo()) {
             this.outlets.go();
-            this._replaceState(this.outlets.currentTab.routerTab.current);
+            let curr_urlState: UrlState = this.urlParser.parseUrlState(window.location.href);
+            this._replaceState(this.outlets.currentTab.routerTab.current, curr_urlState);
         } else {
             throw Error('当前Tab的历史堆栈已经在栈顶，不能再前进了');
         }
@@ -214,28 +227,58 @@ export class Router {
     back(): void {
         if (this.canBack()) {
             this.outlets.back();
-            this._replaceState(this.outlets.currentTab.routerTab.current);
+            let curr_urlState: UrlState = this.urlParser.parseUrlState(window.location.href);
+            this._replaceState(this.outlets.currentTab.routerTab.current, curr_urlState);
         } else {
             throw Error('当前Tab的历史堆栈已经在栈底，不能再后退了');
         }
     }
 
-    private _replaceState(urlState: UrlState) {
-        this.location.replaceState(urlState.href);
-        this._params_sub.next({...urlState.queryParams, ...urlState.pathParams});
-        this._event_sub.next(urlState.href);
-        this._url_sub.next(urlState.href);
-        this._fragment_sub.next(urlState.fragment);
+    private _replaceState(next_urlState: UrlState, curr_urlState?: UrlState) {
+        window.history.replaceState(null, null, next_urlState.href);
+
+        if (curr_urlState) {
+            if (!isQueryParamsEquals(next_urlState.queryParams, curr_urlState.queryParams)) {
+                this._params_sub.next({...next_urlState.queryParams, ...next_urlState.pathParams});
+            }
+
+            this._event_sub.next(next_urlState.href);
+
+            if (next_urlState.href != curr_urlState.href) {
+                this._url_sub.next(next_urlState.href);
+            }
+
+            if (next_urlState.fragment != curr_urlState.fragment) {
+                this._fragment_sub.next(next_urlState.fragment);
+            }
+        } else {
+            this._params_sub.next({...next_urlState.queryParams, ...next_urlState.pathParams});
+            this._event_sub.next(next_urlState.href);
+            this._url_sub.next(next_urlState.href);
+            this._fragment_sub.next(next_urlState.fragment);
+        }
+
         this._cango_sub.next(this.canGo());
         this._canback_sub.next(this.canBack());
     }
 
-    private _pushState(urlState: UrlState) {
-        this.location.go(urlState.href);
-        this._params_sub.next({...urlState.queryParams, ...urlState.pathParams});
-        this._event_sub.next(urlState.href);
-        this._url_sub.next(urlState.href);
-        this._fragment_sub.next(urlState.fragment);
+    private _pushState(next_urlState: UrlState, curr_urlState: UrlState) {
+        window.history.pushState(null, null, next_urlState.href);
+
+        if (!isQueryParamsEquals(next_urlState.queryParams, curr_urlState.queryParams)) {
+            this._params_sub.next({...next_urlState.queryParams, ...next_urlState.pathParams});
+        }
+
+        this._event_sub.next(next_urlState.href);
+
+        if (next_urlState.href != curr_urlState.href) {
+            this._url_sub.next(next_urlState.href);
+        }
+
+        if (next_urlState.fragment != curr_urlState.fragment) {
+            this._fragment_sub.next(next_urlState.fragment);
+        }
+
         this._cango_sub.next(this.canGo());
         this._canback_sub.next(this.canBack());
     }

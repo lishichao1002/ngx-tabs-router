@@ -5,10 +5,12 @@ import {NavigationExtras, PathParams, QueryParams} from './params';
 import {forwardRef, Inject, Injectable} from '@angular/core';
 import {LocationStrategy} from '@angular/common';
 
+let l = new URI('bbs').absoluteTo('http://localhost:8000').toString();
+console.warn(l);
+
 export type UrlSegment = string;
 
 export class UrlState {
-
     constructor(/** <base href=''/> */
                 public baseUrl: string,
                 public route: Route,
@@ -79,7 +81,7 @@ export class UrlParser {
     }
 
     buildUrlState(route: Route, segments: UrlSegment[], pathParams: PathParams, queryParams: QueryParams = {}, fragment: string = ''): UrlState {
-        let uri = new URI(segments.join('/')).absoluteTo(this._base_url).query(queryParams).fragment(fragment);
+        let uri = new URI(segments.join('/')).absoluteTo(`${window.location.origin}${this._base_url}`).query(queryParams).fragment(fragment);
         return new UrlState(this._base_url, route, segments, pathParams, queryParams, fragment, uri.toString());
     }
 
@@ -126,4 +128,24 @@ export class UrlParser {
         }
         return null;
     }
+}
+
+
+export function isRouteEquals({title: t1, component: c1, path: p1}: Route, {title: t2, component: c2, path: p2}: Route): boolean {
+    return t1 == t2 && c1 == c2 && p1 == p2;
+}
+
+export function isQueryParamsEquals(p1: PathParams, p2: PathParams): boolean {
+    function p1EqP2(p1: PathParams, p2: PathParams) {
+        for (let key in p1) {
+            if (p2[key] != p1[key]) return false;
+        }
+        return true;
+    }
+
+    return p1EqP2(p1, p2) && p1EqP2(p2, p1);
+}
+
+export function isUrlStateLike({route: r1, pathParams: p1}: UrlState, {route: r2, pathParams: p2}: UrlState): boolean {
+    return isRouteEquals(r1, r2) && isQueryParamsEquals(p1, p2);
 }

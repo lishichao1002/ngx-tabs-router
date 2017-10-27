@@ -9,8 +9,7 @@ const routes: Routes = [
     {
         title: 'demo1',
         path: 'demo1',
-        component: Demo1Component,
-        default: true
+        component: Demo1Component
     },
     {
         title: 'demo2',
@@ -20,6 +19,11 @@ const routes: Routes = [
     {
         title: 'demo3',
         path: 'demo3',
+        component: Demo3Component
+    },
+    {
+        title: 'demo4',
+        path: '(.*)?',
         component: Demo3Component
     }
 ];
