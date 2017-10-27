@@ -22,8 +22,7 @@ import {Router} from './router/router';
         </div>
 
         <router-tabs></router-tabs>
-    `,
-    styleUrls: ['./app.component.css']
+    `
 })
 export class AppComponent {
 

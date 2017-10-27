@@ -1,10 +1,11 @@
 import {ANALYZE_FOR_ENTRY_COMPONENTS, Inject, ModuleWithProviders, NgModule, Optional} from '@angular/core';
-import {APP_BASE_HREF, CommonModule, LocationStrategy, PathLocationStrategy, PlatformLocation} from '@angular/common';
-import {RouterLinkDirective} from './directive/router-link.directive';
+import {APP_BASE_HREF, CommonModule, Location, LocationStrategy, PathLocationStrategy, PlatformLocation} from '@angular/common';
 import {Router} from './router';
 import {RouterTabsComponent} from './directive/router-tabs.component';
 import {RouterTabComponent} from './directive/router-tab.component';
 import {Routes, ROUTES} from './pojo/route';
+import {UrlParser} from './pojo/url_state';
+import {RouterLink, RouterLinkWithHref} from './directive/router-link.directive';
 
 export function provideLocationStrategy(platformLocationStrategy: PlatformLocation, baseHref: string) {
     return new PathLocationStrategy(platformLocationStrategy, baseHref);
@@ -17,12 +18,14 @@ export function provideLocationStrategy(platformLocationStrategy: PlatformLocati
     declarations: [
         RouterTabsComponent,
         RouterTabComponent,
-        RouterLinkDirective
+        RouterLink,
+        RouterLinkWithHref
     ],
     exports: [
         RouterTabsComponent,
         RouterTabComponent,
-        RouterLinkDirective
+        RouterLink,
+        RouterLinkWithHref
     ],
     providers: [
         Router
@@ -37,6 +40,7 @@ export class RouterModule {
                 {provide: ANALYZE_FOR_ENTRY_COMPONENTS, multi: true, useValue: routes},
                 {provide: ROUTES, useValue: routes},
                 Router,
+                UrlParser,
                 {
                     provide: LocationStrategy,
                     useFactory: provideLocationStrategy,

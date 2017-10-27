@@ -1,4 +1,5 @@
-import {UrlTree} from './pojo/url_tree';
+import {UrlState} from './pojo/url_state';
+import {RouterTabComponent} from './directive/router-tab.component';
 
 let tabId: number = 0;
 
@@ -6,19 +7,22 @@ export class RouterTab {
 
     selected: boolean;
 
+    outlet: RouterTabComponent;
+
     private _tabId: number;
     private _stack_pointer: number;
-    private _stack: UrlTree[];
-    private _current: UrlTree;
+    private _stack: UrlState[];
+    private _current: UrlState;
 
-    constructor() {
+    constructor(initState: UrlState) {
         this.selected = true;
         this._tabId = ++tabId;
         this._stack = [];
         this._stack_pointer = -1;
+        this._current = initState;
     }
 
-    get current(): UrlTree {
+    get current(): UrlState {
         return this._current;
     }
 
@@ -26,7 +30,7 @@ export class RouterTab {
         return this._tabId;
     }
 
-    addRoute(route: UrlTree) {
+    addRoute(route: UrlState) {
         if (this.canGo()) {
             this._stack = this._stack.slice(0, this._stack_pointer);
         }

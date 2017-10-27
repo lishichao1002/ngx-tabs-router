@@ -2,8 +2,8 @@ import {NgModule} from '@angular/core';
 import {RouterModule} from './router/router.module';
 import {Demo1Component} from './demo/demo1.component';
 import {Demo2Component} from './demo/demo2.component';
-import {Routes} from './router/types';
 import {Demo3Component} from './demo/demo3.component';
+import {Routes} from './router/pojo/route';
 
 const routes: Routes = [
     {

@@ -13,4 +13,6 @@ export type QueryParamsHandling = 'merge' | 'preserve' | '';
 export interface NavigationExtras {
     queryParams?: QueryParams;
     queryParamsHandling?: QueryParamsHandling;
+    fragment?: string;
+    preserveFragment?: boolean;
 }
