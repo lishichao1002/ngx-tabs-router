@@ -140,8 +140,9 @@ export class Router {
      * 选择tab页
      */
     selectTab(tabId: number): void {
+        let curr_urlState: UrlState = this.outlets.currentTab ? this.outlets.currentTab.routerTab.current : null;
         this.outlets.selectTab(tabId);
-        let curr_urlState: UrlState = this.urlParser.parseUrlState(window.location.href);
+        // let curr_urlState: UrlState = this.urlParser.parseUrlState(window.location.href);
         this._replaceState(this.outlets.currentTab.routerTab.current, curr_urlState);
     }
 
@@ -235,7 +236,7 @@ export class Router {
         }
     }
 
-    private _replaceState(next_urlState: UrlState, curr_urlState: UrlState) {
+    private _replaceState(next_urlState: UrlState, curr_urlState?: UrlState) {
         window.history.replaceState(null, null, next_urlState.href);
         this._refresh_subject(next_urlState, curr_urlState);
     }
@@ -245,19 +246,26 @@ export class Router {
         this._refresh_subject(next_urlState, curr_urlState);
     }
 
-    private _refresh_subject(next_urlState: UrlState, curr_urlState: UrlState) {
-        if (!isQueryParamsEquals(next_urlState.queryParams, curr_urlState.queryParams)) {
+    private _refresh_subject(next_urlState: UrlState, curr_urlState?: UrlState) {
+        if (curr_urlState) {
+            if (!isQueryParamsEquals(next_urlState.queryParams, curr_urlState.queryParams)) {
+                this._params_sub.next({...next_urlState.queryParams, ...next_urlState.pathParams});
+            }
+
+            this._event_sub.next(next_urlState.href);
+
+            if (next_urlState.href != curr_urlState.href) {
+                this._url_sub.next(next_urlState.href);
+            }
+
+            if (next_urlState.fragment != curr_urlState.fragment) {
+                this._fragment_sub.next(next_urlState.fragment);
+            }
+        } else {
             this._params_sub.next({...next_urlState.queryParams, ...next_urlState.pathParams});
-        }
-
-        this._event_sub.next(next_urlState.href);
-
-        if (next_urlState.href != curr_urlState.href) {
+            this._event_sub.next(next_urlState.href);
             this._url_sub.next(next_urlState.href);
-        }
-
-        if (next_urlState.fragment != curr_urlState.fragment) {
-            this._fragment_sub.next(next_urlState.fragment);
+            this._url_sub.next(next_urlState.href);
         }
 
         this._cango_sub.next(this.canGo());

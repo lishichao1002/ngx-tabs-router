@@ -20,9 +20,21 @@ import {Router} from './router/router';
 export class AppComponent {
 
     constructor(private router: Router) {
-        this.router.params.subscribe((params) => {
-            console.warn('router params: ', params);
-        });
+
+    }
+
+    private _mytab: any;
+
+    ngAfterViewInit() {
+        // this._mytab = this.router.tabId();
+        //
+        // this.router.params.subscribe((params) => {
+        //     console.warn('app router params: ', params, this._mytab, this.router.tabId());
+        // });
+    }
+
+    ngOnDestroy() {
+
     }
 
 }

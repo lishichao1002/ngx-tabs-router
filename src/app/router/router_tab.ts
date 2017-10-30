@@ -13,6 +13,7 @@ export class RouterTab {
     private _stack_pointer: number;
     private _stack: UrlState[];
     private _current: UrlState;
+    private _pre: UrlState;
 
     constructor(initState: UrlState) {
         this.selected = true;
@@ -20,6 +21,10 @@ export class RouterTab {
         this._stack = [];
         this._stack_pointer = -1;
         this._current = initState;
+    }
+
+    get pre(): UrlState {
+        return this._pre;
     }
 
     get current(): UrlState {
@@ -36,6 +41,7 @@ export class RouterTab {
         }
         this._stack.push(route);
         this._stack_pointer++;
+        this._pre = this._current;
         this._current = route;
         console.log(this.tabId, this._stack_pointer, this._stack.map(item => item.route.title).join(','));
     }

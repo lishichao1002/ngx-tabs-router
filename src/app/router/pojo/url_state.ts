@@ -5,9 +5,6 @@ import {NavigationExtras, PathParams, QueryParams} from './params';
 import {forwardRef, Inject, Injectable} from '@angular/core';
 import {LocationStrategy} from '@angular/common';
 
-let l = new URI('bbs').absoluteTo('http://localhost:8000').toString();
-console.warn(l);
-
 export type UrlSegment = string;
 
 export class UrlState {
