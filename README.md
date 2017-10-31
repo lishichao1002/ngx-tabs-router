@@ -4,8 +4,11 @@
 `http://localhost:8000/bbs/section/:id?language=01&product=02&locale=zh_CN#fragment`
 
 **bbs/section/:id **		--> 	**route path**
+
 **:id**						--> 	**path params**
+
 **language=01&product=02&locale=zh_CN**  --> **query params**
+
 **#fragment**				--> 	**fragment**
 
 
