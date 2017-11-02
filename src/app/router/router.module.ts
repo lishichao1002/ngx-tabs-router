@@ -6,6 +6,7 @@ import {RouterTabComponent} from './directive/router-tab.component';
 import {Routes, ROUTES} from './pojo/route';
 import {UrlParser} from './pojo/url_state';
 import {RouterLink, RouterLinkWithHref} from './directive/router-link.directive';
+import {TabsEvent} from './events';
 
 export function provideLocationStrategy(platformLocationStrategy: PlatformLocation, baseHref: string) {
     return new PathLocationStrategy(platformLocationStrategy, baseHref);
@@ -31,7 +32,8 @@ export function provideLocationStrategy(platformLocationStrategy: PlatformLocati
         RouterLinkWithHref
     ],
     providers: [
-        Router
+        Router,
+        TabsEvent
     ]
 })
 export class RouterModule {

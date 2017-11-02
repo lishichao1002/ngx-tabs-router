@@ -23,7 +23,7 @@ const routes: Routes = [
     },
     {
         title: 'demo4',
-        path: '(.*)?',
+        path: '.*?',
         component: Demo3Component
     }
 ];

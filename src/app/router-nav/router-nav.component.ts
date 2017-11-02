@@ -10,7 +10,7 @@ import {RouterTab} from '../router/router_tab';
 
             <button class="btn btn-primary btn-xs" (click)="addTab()">add tab</button>
 
-            <button *ngIf="(canGo$ | async)" class="btn btn-primary btn-xs" (click)="go()">Go</button>
+            <button *ngIf="canGo$ | async" class="btn btn-primary btn-xs" (click)="go()">Go</button>
             <button *ngIf="!(canGo$ | async)" class="btn btn-primary btn-xs disabled">Go</button>
 
             <button *ngIf="(canBack$ | async)" class="btn btn-primary btn-xs" (click)="back()">Back</button>
@@ -36,8 +36,8 @@ import {RouterTab} from '../router/router_tab';
 })
 export class RouterNavComponent {
 
-    canGo$;
-    canBack$;
+    canGo$: Observable<boolean>;
+    canBack$: Observable<boolean>;
 
     tabs$: Observable<RouterTab[]>;
 

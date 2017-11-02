@@ -1,11 +1,12 @@
 import {Route, ROUTES} from './route';
 import * as URI from 'urijs';
 import * as pathToRegexp from 'path-to-regexp';
-import {NavigationExtras, PathParams, QueryParams} from './params';
+import {NavigationExtras, Params, PathParams, QueryParams} from './params';
 import {forwardRef, Inject, Injectable} from '@angular/core';
 import {LocationStrategy} from '@angular/common';
 
 export type UrlSegment = string;
+export type Fragment = string;
 
 export class UrlState {
     constructor(/** <base href=''/> */
@@ -17,7 +18,7 @@ export class UrlState {
                 /** The query params of the URL */
                 public queryParams: QueryParams,
                 /** The fragment of the URL */
-                public fragment: string,
+                public fragment: Fragment,
                 public href: string) {
     }
 
@@ -128,12 +129,22 @@ export class UrlParser {
 }
 
 
-export function isRouteEquals({title: t1, component: c1, path: p1}: Route, {title: t2, component: c2, path: p2}: Route): boolean {
-    return t1 == t2 && c1 == c2 && p1 == p2;
+export function isUrlStateEquals(s1: UrlState, s2: UrlState): boolean {
+    if (!s1 || !s2) {
+        return false;
+    }
+    return s1.href == s2.href;
 }
 
-export function isQueryParamsEquals(p1: PathParams, p2: PathParams): boolean {
-    function p1EqP2(p1: PathParams, p2: PathParams) {
+export function isUrlStateLike(s1: UrlState, s2: UrlState): boolean {
+    if (!s1 || !s2 || !s1.route || !s2.route) {
+        return false;
+    }
+    return s1.route.title == s2.route.title && s1.route.component == s2.route.component && s1.route.path == s2.route.path && s1.href != s2.href;
+}
+
+export function isParamsEquals(p1: Params, p2: Params): boolean {
+    function p1EqP2(p1: Params, p2: Params) {
         for (let key in p1) {
             if (p2[key] != p1[key]) return false;
         }
@@ -141,8 +152,4 @@ export function isQueryParamsEquals(p1: PathParams, p2: PathParams): boolean {
     }
 
     return p1EqP2(p1, p2) && p1EqP2(p2, p1);
-}
-
-export function isUrlStateLike({route: r1, pathParams: p1}: UrlState, {route: r2, pathParams: p2}: UrlState): boolean {
-    return isRouteEquals(r1, r2) && isQueryParamsEquals(p1, p2);
 }

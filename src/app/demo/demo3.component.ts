@@ -17,14 +17,16 @@ export class Demo3Component {
     private _des: any;
 
     ngOnInit() {
-        this._mytab = this.router.tabId();
+        console.log('demo3 init');
+        this._mytab = this.router.tab.tabId;
 
         this._des = this.router.params.subscribe((params) => {
-            console.warn('demo3 router params: ', params, this._mytab, this.router.tabId());
+            console.warn('demo3 router params: ', params, this._mytab, this.router.tab.tabId);
         });
     }
 
     ngOnDestroy() {
+        console.log('demo3 destroy');
         this._des.unsubscribe();
     }
 

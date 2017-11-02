@@ -12,19 +12,22 @@ export class Demo1Component {
     constructor(private router: Router) {
     }
 
-    private _mytab: any;
+    private _mytab: number;
 
     private _des: any;
 
     ngOnInit() {
-        this._mytab = this.router.tabId();
+        console.log('demo1 init');
+
+        this._mytab = this.router.tab.tabId;
 
         this._des = this.router.params.subscribe((params) => {
-            console.warn('demo1 router params: ', params, this._mytab, this.router.tabId());
+            console.warn('demo1 router params: ', params, this._mytab, this.router.tab.tabId);
         });
     }
 
     ngOnDestroy() {
+        console.log('demo1 destroy');
         this._des.unsubscribe();
     }
 }

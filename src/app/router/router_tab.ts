@@ -1,26 +1,28 @@
+import {Observable} from 'rxjs/Observable';
+import {Snapshot} from './pojo/snapshot';
 import {UrlState} from './pojo/url_state';
-import {RouterTabComponent} from './directive/router-tab.component';
 
 let tabId: number = 0;
 
 export class RouterTab {
 
-    selected: boolean;
-
-    outlet: RouterTabComponent;
+    public selected: boolean;
 
     private _tabId: number;
-    private _stack_pointer: number;
     private _stack: UrlState[];
-    private _current: UrlState;
+    private _stack_pointer: number;
     private _pre: UrlState;
+    private _current: UrlState;
 
     constructor(initState: UrlState) {
-        this.selected = true;
         this._tabId = ++tabId;
         this._stack = [];
         this._stack_pointer = -1;
         this._current = initState;
+    }
+
+    get tabId(): number {
+        return this._tabId;
     }
 
     get pre(): UrlState {
@@ -31,27 +33,51 @@ export class RouterTab {
         return this._current;
     }
 
-    get tabId(): number {
-        return this._tabId;
+    get params(): Observable<void> {
+        return null;
     }
 
-    addRoute(route: UrlState) {
+    get pathParams(): Observable<void> {
+        return null;
+    }
+
+    get queryParams(): Observable<void> {
+        return null;
+    }
+
+    get fragment(): Observable<string> {
+        return null;
+    }
+
+    get snapshot(): Snapshot {
+        return null;
+    }
+
+    navigate(urlState: UrlState) {
         if (this.canGo()) {
-            this._stack = this._stack.slice(0, this._stack_pointer);
+            this._stack.splice(this._stack_pointer, this._stack.length - this._stack_pointer);
         }
-        this._stack.push(route);
+        this._stack.push(urlState);
         this._stack_pointer++;
         this._pre = this._current;
-        this._current = route;
+        this._current = urlState;
         console.log(this.tabId, this._stack_pointer, this._stack.map(item => item.route.title).join(','));
+    }
+
+    canGo(): boolean {
+        return this._stack_pointer < this._stack.length - 1;
     }
 
     canBack(): boolean {
         return this._stack_pointer > 0;
     }
 
-    canGo(): boolean {
-        return this._stack_pointer < this._stack.length - 1;
+    go() {
+        if (this.canGo()) {
+            this._stack_pointer++;
+            this._current = this._stack[this._stack_pointer];
+        }
+        console.log(this.tabId, this._stack_pointer, this._stack.map(item => item.route.title).join(','));
     }
 
     back() {
@@ -62,11 +88,12 @@ export class RouterTab {
         console.log(this.tabId, this._stack_pointer, this._stack.map(item => item.route.title).join(','));
     }
 
-    go() {
-        if (this.canGo()) {
-            this._stack_pointer++;
-            this._current = this._stack[this._stack_pointer];
-        }
-        console.log(this.tabId, this._stack_pointer, this._stack.map(item => item.route.title).join(','));
+    canGo$(): Observable<boolean> {
+        return null;
     }
+
+    canBack$(): Observable<boolean> {
+        return null;
+    }
+
 }
