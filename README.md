@@ -3,6 +3,7 @@
 
 ## [Uri parse](https://github.com/pillarjs/path-to-regexp)
 `Route -->      http://localhost:8000/bbs/section/:id?language=01&product=02&locale=zh_CN#fragment`
+
 `Uri -->     	http://localhost:8000/bbs/section/1?language=01&product=02&locale=zh_CN#1`
 
 |	对应url的部分				      |	    对应解析后的值   |		解析后的值     |
