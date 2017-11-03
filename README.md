@@ -10,7 +10,7 @@
 |	/bbs/section/1	 	  |   pathParams      |	 pathParams={id:1}   |
 |	?language=01&product=02&locale=zh_CN		      |     queryParams  	  |   queryParams={language:'01',product:'02',locale:'zh_CN'} |
 |	#1 		      | fragment 		|			fragment=1 |
-|	Uri 		      | params 		|			{...queryParams, ...pathParams} |
+|	Uri 		      | params 		|			params={...queryParams, ...pathParams} |
 
 
 ## Router outelet
