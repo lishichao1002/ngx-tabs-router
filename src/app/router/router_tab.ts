@@ -41,10 +41,12 @@ export class RouterTab {
         return this._tabId;
     }
 
+    /** @internal */
     get pre(): UrlState {
         return this._pre;
     }
 
+    /** @internal */
     get current(): UrlState {
         return this._current;
     }
@@ -67,6 +69,7 @@ export class RouterTab {
 
     snapshot: Snapshot;
 
+    /** @internal */
     navigate(urlState: UrlState) {
         if (this.canGo()) {
             this._stack.splice(this._stack_pointer, this._stack.length - this._stack_pointer);

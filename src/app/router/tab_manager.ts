@@ -32,7 +32,9 @@ export class TabsManager {
     public queryParams: Subject<QueryParams> = new BehaviorSubject({});
     public fragment: Subject<Fragment> = new BehaviorSubject('');
 
-    public snapshot: Snapshot;
+    public get snapshot(): Snapshot {
+        return this.current ? this.current.snapshot : null;
+    }
 
     addTab() {
         //add tab
@@ -66,12 +68,15 @@ export class TabsManager {
         }
 
         let index = this.tabs.map(tab => tab.tabId).indexOf(tabId);
+        let tab = this.tabs[index];
         this.tabs.splice(index, 1);
         this.tabsEvent.next(this.tabs);
         this.removeTabSubject.next(tabId);
 
-        let tab = this.tabs[this.tabs.length - 1];
-        this.selectTab(tab.tabId);
+        if (tab.selected) {
+            let tab = this.tabs[this.tabs.length - 1];
+            this.selectTab(tab.tabId);
+        }
     }
 
     navigateByUrl(segments: any[] | string, extras: NavigationExtras) {
