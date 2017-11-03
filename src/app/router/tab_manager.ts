@@ -5,6 +5,7 @@ import {RouterTab} from './router_tab';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Fragment, isUrlStateEquals, UrlParser, UrlState} from './pojo/url_state';
 import {Snapshot} from './pojo/snapshot';
+import {Event} from './pojo/events';
 
 /**
  * @internal
@@ -15,10 +16,12 @@ export class TabsManager {
     constructor(private urlParser: UrlParser) {
     }
 
+
     public current: RouterTab;
     public tabs: RouterTab[] = [];
-    public tabsEvent: Subject<RouterTab[]> = new BehaviorSubject(this.tabs);
+    public tabsSubject: Subject<RouterTab[]> = new BehaviorSubject(this.tabs);
 
+    public eventsSubject: Subject<Event> = new Subject();
     public addTabSubject: Subject<RouterTab> = new BehaviorSubject(null);
     public switchTabSubject: Subject<number> = new BehaviorSubject(null);
     public removeTabSubject: Subject<number> = new BehaviorSubject(null);
@@ -41,7 +44,7 @@ export class TabsManager {
         let emptyState = this.urlParser.createEmptyUrlState();
         let tab = new RouterTab(emptyState);
         this.tabs.push(tab);
-        this.tabsEvent.next(this.tabs);
+        this.tabsSubject.next(this.tabs);
         this.addTabSubject.next(tab);
         //select tab
         this.selectTab(tab.tabId);
@@ -57,7 +60,7 @@ export class TabsManager {
                 tab.selected = false;
             }
         });
-        this.tabsEvent.next(this.tabs);
+        this.tabsSubject.next(this.tabs);
         this._publishGoBackSubject();
     }
 
@@ -70,7 +73,7 @@ export class TabsManager {
         let index = this.tabs.map(tab => tab.tabId).indexOf(tabId);
         let tab = this.tabs[index];
         this.tabs.splice(index, 1);
-        this.tabsEvent.next(this.tabs);
+        this.tabsSubject.next(this.tabs);
         this.removeTabSubject.next(tabId);
 
         if (tab.selected) {

@@ -5,6 +5,7 @@ export {PathParams, QueryParams, Params, QueryParamsHandling, NavigationExtras} 
 export {Route} from './pojo/route';
 export {Snapshot} from './pojo/snapshot';
 export {UrlState, UrlSegment, Fragment} from './pojo/url_state';
+export {Event, NavigateEvent, AddTabEvent, SwitchTabEvent, RemoveTabEvent} from './pojo/events';
 
 
 

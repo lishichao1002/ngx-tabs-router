@@ -35,6 +35,9 @@ router.removeTab: void
 router.navigate: void
 router.navigateByUrl: void
 
+//tab变化、url变化等生命周期事件
+router.events: Obserable<Event>
+
 //所有tab的参数变化都会触发这些事件
 router.params: Obserable<Params>
 router.pathParams: Obserable<PathParams>

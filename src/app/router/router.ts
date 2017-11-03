@@ -6,6 +6,7 @@ import {NavigationExtras, Params, PathParams, QueryParams} from './pojo/params';
 import {Snapshot} from './pojo/snapshot';
 import {TabsManager} from './tab_manager';
 import {UrlParser} from './pojo/url_state';
+import {Event} from './pojo/events';
 import 'rxjs/add/observable/of';
 
 /**
@@ -75,7 +76,7 @@ export class Router {
     }
 
     get tabs(): Observable<RouterTab[]> {
-        return this.tabsManager.tabsEvent.asObservable();
+        return this.tabsManager.tabsSubject.asObservable();
     }
 
     get tab(): RouterTab {
@@ -100,6 +101,10 @@ export class Router {
 
     navigateByUrl(segments: any[] | string, extras: NavigationExtras) {
         this.tabsManager.navigateByUrl(segments, extras);
+    }
+
+    get events(): Observable<Event> {
+        return this.tabsManager.eventsSubject.asObservable();
     }
 
     get params(): Observable<Params> {

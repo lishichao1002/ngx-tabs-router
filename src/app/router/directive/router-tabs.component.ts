@@ -6,6 +6,7 @@ import {RouterTabComponent} from './router-tab.component';
 import {isParamsEquals, isUrlStateEquals, isUrlStateLike, UrlParser, UrlState} from '../pojo/url_state';
 import 'rxjs/add/operator/filter';
 import {Snapshot} from '../pojo/snapshot';
+import {AddTabEvent, NavigateEvent, RemoveTabEvent, SwitchTabEvent} from '../pojo/events';
 
 @Component({
     selector: 'router-tabs',
@@ -44,6 +45,7 @@ export class RouterTabsComponent implements OnInit {
                 let componentRef: ComponentRef<RouterTabComponent> = this._tabs.get(tabId);
                 componentRef.destroy();
                 this._tabs.delete(tabId);
+                this.tabsManager.eventsSubject.next(new RemoveTabEvent());
             });
 
         this.tabsManager.switchTabSubject.filter(val => val != null)
@@ -128,9 +130,11 @@ export class RouterTabsComponent implements OnInit {
         switch (mode) {
             case 'replaceState':
                 window.history.replaceState(null, null, next.href);
+                this.tabsManager.eventsSubject.next(new NavigateEvent('replaceState', next.href));
                 break;
             case 'pushState':
                 window.history.pushState(null, null, next.href);
+                this.tabsManager.eventsSubject.next(new NavigateEvent('pushState', next.href));
                 break;
         }
     }
@@ -139,11 +143,13 @@ export class RouterTabsComponent implements OnInit {
         let {queryParams, fragment} = this.urlParser.parseHref(window.location.href);
         let href = this.urlParser.emptyRouteUrl('/', queryParams, fragment);
         window.history.replaceState(null, null, href);
+        this.tabsManager.eventsSubject.next(new AddTabEvent(href));
     }
 
     private _updateSwitchTabHref(tab: RouterTab) {
         if (tab.current) {
             window.history.replaceState(null, null, tab.current.href);
+            this.tabsManager.eventsSubject.next(new SwitchTabEvent(tab.current.href));
         } else {
             this._updateAddTabHref();
         }

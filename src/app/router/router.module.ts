@@ -7,6 +7,7 @@ import {Routes, ROUTES} from './pojo/route';
 import {UrlParser} from './pojo/url_state';
 import {RouterLink, RouterLinkWithHref} from './directive/router-link.directive';
 import {TabsManager} from './tab_manager';
+import {RouterLinkActive} from './directive/router_link_active';
 
 export function provideLocationStrategy(platformLocationStrategy: PlatformLocation, baseHref: string) {
     return new PathLocationStrategy(platformLocationStrategy, baseHref);
@@ -20,7 +21,8 @@ export function provideLocationStrategy(platformLocationStrategy: PlatformLocati
         RouterTabsComponent,
         RouterTabComponent,
         RouterLink,
-        RouterLinkWithHref
+        RouterLinkWithHref,
+        RouterLinkActive
     ],
     entryComponents: [
         RouterTabComponent
@@ -29,7 +31,8 @@ export function provideLocationStrategy(platformLocationStrategy: PlatformLocati
         RouterTabsComponent,
         RouterTabComponent,
         RouterLink,
-        RouterLinkWithHref
+        RouterLinkWithHref,
+        RouterLinkActive
     ],
     providers: [
         Router,
