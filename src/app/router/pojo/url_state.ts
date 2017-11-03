@@ -1,11 +1,12 @@
 import {Route, ROUTES} from './route';
 import * as URI from 'urijs';
 import * as pathToRegexp from 'path-to-regexp';
-import {NavigationExtras, PathParams, QueryParams} from './params';
+import {NavigationExtras, Params, PathParams, QueryParams} from './params';
 import {forwardRef, Inject, Injectable} from '@angular/core';
 import {LocationStrategy} from '@angular/common';
 
 export type UrlSegment = string;
+export type Fragment = string;
 
 export class UrlState {
     constructor(/** <base href=''/> */
@@ -17,7 +18,7 @@ export class UrlState {
                 /** The query params of the URL */
                 public queryParams: QueryParams,
                 /** The fragment of the URL */
-                public fragment: string,
+                public fragment: Fragment,
                 public href: string) {
     }
 
@@ -26,6 +27,9 @@ export class UrlState {
     }
 }
 
+/**
+ * @internal
+ */
 @Injectable()
 export class UrlParser {
 
@@ -49,7 +53,7 @@ export class UrlParser {
         return route ? new UrlState(this._base_url, route, segments, pathParams, queryParams, fragment, href) : null;
     }
 
-    createUrlState(segments: any[] | string, extras?: NavigationExtras): UrlState {
+    createUrlState(segments: any[] | string, extras: NavigationExtras): UrlState {
         segments = Array.isArray(segments) ? segments : [segments];
         const parse_result = this.parseRoute(segments);
         if (!parse_result) throw Error(`路由不存在, ${segments.join('/')}`);
@@ -61,7 +65,7 @@ export class UrlParser {
         let dist_param: QueryParams, dist_fragment;
 
         if (extras && !extras.queryParamsHandling) {
-            dist_param = {};
+            dist_param = extras.queryParams;
         } else if (extras && extras.queryParamsHandling == 'merge') {
             dist_param = {...curr_queryParams, ...extras.queryParams};
         } else if (extras && extras.queryParamsHandling == 'preserve') {
@@ -82,9 +86,8 @@ export class UrlParser {
         return new UrlState(this._base_url, route, segments, pathParams, queryParams, fragment, uri.toString());
     }
 
-    createEmptyUrlState(queryParams: QueryParams = {}, fragment: string = ''): UrlState {
-        let uri = new URI(this._base_url).query(queryParams).fragment(fragment);
-        return new UrlState(this._base_url, null, null, null, queryParams, fragment, uri.toString());
+    createEmptyUrlState(): UrlState {
+        return new UrlState(this._base_url, null, null, {}, {}, '', this._base_url);
     }
 
     /**
@@ -109,7 +112,7 @@ export class UrlParser {
             let regex = new RegExp(pathToRegexp(route.path));
             if (regex.test(path)) {
                 let keys = [];
-                let regexp = pathToRegexp(route.path, keys);
+                let regexp = pathToRegexp(route.path, keys, {sensitive: true, strict: true});
                 let pathParams: any = {};
                 if (keys.length > 0) {
                     let result = regexp.exec(path);
@@ -125,24 +128,39 @@ export class UrlParser {
         }
         return null;
     }
+
+    emptyRouteUrl(segments: string[] | string, queryParams: QueryParams, fragment: string): string {
+        segments = Array.isArray(segments) ? segments : [segments];
+        return new URI().relativeTo(this._base_url).segment(segments).query(queryParams).fragment(fragment).toString();
+    }
 }
 
 
-export function isRouteEquals({title: t1, component: c1, path: p1}: Route, {title: t2, component: c2, path: p2}: Route): boolean {
-    return t1 == t2 && c1 == c2 && p1 == p2;
+export function isUrlStateEquals(s1: UrlState, s2: UrlState): boolean {
+    if (!s1 || !s2) {
+        return false;
+    }
+    return s1.href == s2.href;
 }
 
-export function isQueryParamsEquals(p1: PathParams, p2: PathParams): boolean {
-    function p1EqP2(p1: PathParams, p2: PathParams) {
+export function isUrlStateLike(s1: UrlState, s2: UrlState): boolean {
+    if (!s1 || !s2 || !s1.route || !s2.route) {
+        return false;
+    }
+    return s1.route.title == s2.route.title && s1.route.component == s2.route.component && s1.route.path == s2.route.path && s1.href != s2.href;
+}
+
+export function isParamsEquals(p1: Params, p2: Params): boolean {
+    function p1EqP2(p1: Params, p2: Params) {
         for (let key in p1) {
             if (p2[key] != p1[key]) return false;
         }
         return true;
     }
 
-    return p1EqP2(p1, p2) && p1EqP2(p2, p1);
-}
+    if (!p1 || !p2) {
+        return false;
+    }
 
-export function isUrlStateLike({route: r1, pathParams: p1}: UrlState, {route: r2, pathParams: p2}: UrlState): boolean {
-    return isRouteEquals(r1, r2) && isQueryParamsEquals(p1, p2);
+    return p1EqP2(p1, p2) && p1EqP2(p2, p1);
 }

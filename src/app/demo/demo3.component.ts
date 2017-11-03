@@ -12,20 +12,35 @@ export class Demo3Component {
     constructor(private router: Router) {
     }
 
-    private _mytab: any;
-
-    private _des: any;
+    paramsDesc;
+    pathParamsDesc;
+    queryParamsDesc;
+    fragmentDesc;
 
     ngOnInit() {
-        this._mytab = this.router.tabId();
-
-        this._des = this.router.params.subscribe((params) => {
-            console.warn('demo3 router params: ', params, this._mytab, this.router.tabId());
+        console.warn('-------------------------------------------------');
+        console.log('demo3 init');
+        console.log('demo3 snapshot', this.router.tab.snapshot.toString());
+        this.paramsDesc = this.router.tab.params.subscribe((params) => {
+            console.log('demo3 params', params, this.router.tab.tabId);
+        });
+        this.pathParamsDesc = this.router.tab.pathParams.subscribe((pathParams) => {
+            console.log('demo3 pathParams', pathParams, this.router.tab.tabId);
+        });
+        this.queryParamsDesc = this.router.tab.queryParams.subscribe((queryParams) => {
+            console.log('demo3 queryParams', queryParams, this.router.tab.tabId);
+        });
+        this.fragmentDesc = this.router.tab.fragment.subscribe((fragment) => {
+            console.log('demo3 fragment', fragment, this.router.tab.tabId);
         });
     }
 
     ngOnDestroy() {
-        this._des.unsubscribe();
+        console.log('demo3 destroy');
+        this.paramsDesc.unsubscribe();
+        this.pathParamsDesc.unsubscribe();
+        this.queryParamsDesc.unsubscribe();
+        this.fragmentDesc.unsubscribe();
     }
 
 }

@@ -18,12 +18,12 @@ const routes: Routes = [
     },
     {
         title: 'demo3',
-        path: 'demo3',
+        path: 'demo3/:name',
         component: Demo3Component
     },
     {
-        title: 'demo4',
-        path: '(.*)?',
+        title: 'otherwise',
+        path: '(.*)',
         component: Demo3Component
     }
 ];

@@ -9,8 +9,10 @@ export class RouterLink {
 
     @Input() queryParams: { [k: string]: any };
     @Input() queryParamsHandling: QueryParamsHandling = 'merge';
+    @Input() fragment: string;
+    @Input() preserveFragment: boolean;
 
-    private _segments: any[];
+    segments: any[];
 
     constructor(private router: Router) {
     }
@@ -19,23 +21,25 @@ export class RouterLink {
     set routerLink(segments: any[] | string) {
         if (segments) {
             if (Array.isArray(segments)) {
-                this._segments = segments;
+                this.segments = segments;
             } else if (typeof segments === 'string') {
-                this._segments = [segments];
+                this.segments = [segments];
             } else {
-                this._segments = [];
+                this.segments = [];
             }
         } else {
-            this._segments = [];
+            this.segments = [];
         }
     }
 
     @HostListener('click')
     onClick(): boolean {
-        if (this._segments) {
-            this.router.navigateByUrl(this._segments, {
+        if (this.segments) {
+            this.router.navigateByUrl(this.segments, {
                 queryParams: this.queryParams,
-                queryParamsHandling: this.queryParamsHandling
+                queryParamsHandling: this.queryParamsHandling,
+                fragment: this.fragment,
+                preserveFragment: this.preserveFragment
             });
         }
         return true;
@@ -57,26 +61,28 @@ export class RouterLinkWithHref implements OnChanges, OnInit, OnDestroy {
     @Input() queryParams: { [k: string]: any };
     @Input() queryParamsHandling: QueryParamsHandling = 'merge';
     @Input() disabled: boolean;
+    @Input() fragment: string;
+    @Input() preserveFragment: boolean;
     @HostBinding() href: string;
 
     constructor(private router: Router,
                 private urlParser: UrlParser) {
     }
 
-    private _segments: any[];
+    segments: any[];
 
     @Input()
     set routerLink(segments: any[] | string) {
         if (segments) {
             if (Array.isArray(segments)) {
-                this._segments = segments;
+                this.segments = segments;
             } else if (typeof segments === 'string') {
-                this._segments = [segments];
+                this.segments = [segments];
             } else {
-                this._segments = [];
+                this.segments = [];
             }
         } else {
-            this._segments = [];
+            this.segments = [];
         }
     }
 
@@ -94,18 +100,22 @@ export class RouterLinkWithHref implements OnChanges, OnInit, OnDestroy {
             return true;
         }
 
-        this.router.navigateByUrl(this._segments, {
+        this.router.navigateByUrl(this.segments, {
             queryParams: this.queryParams,
-            queryParamsHandling: this.queryParamsHandling
+            queryParamsHandling: this.queryParamsHandling,
+            fragment: this.fragment,
+            preserveFragment: this.preserveFragment
         });
         return false;
     }
 
     ngOnChanges(changes: {}): any {
-        if (this._segments) {
-            let urlState = this.urlParser.createUrlState(this._segments, {
+        if (this.segments) {
+            let urlState = this.urlParser.createUrlState(this.segments, {
+                queryParams: this.queryParams,
                 queryParamsHandling: this.queryParamsHandling,
-                queryParams: this.queryParams
+                fragment: this.fragment,
+                preserveFragment: this.preserveFragment
             });
             this.href = urlState.href;
         }
