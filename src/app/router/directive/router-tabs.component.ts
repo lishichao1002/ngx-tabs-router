@@ -1,10 +1,11 @@
 import {Component, ComponentFactory, ComponentFactoryResolver, ComponentRef, OnInit, ViewChild, ViewContainerRef} from '@angular/core';
 import {Router} from '../router';
-import {TabsEvent} from '../events';
+import {TabsManager} from '../tab_manager';
 import {RouterTab} from '../router_tab';
 import {RouterTabComponent} from './router-tab.component';
+import {isParamsEquals, isUrlStateEquals, isUrlStateLike, UrlParser, UrlState} from '../pojo/url_state';
 import 'rxjs/add/operator/filter';
-import {isParamsEquals, isUrlStateEquals, isUrlStateLike, UrlState} from '../pojo/url_state';
+import {Snapshot} from '../pojo/snapshot';
 
 @Component({
     selector: 'router-tabs',
@@ -19,12 +20,13 @@ export class RouterTabsComponent implements OnInit {
     private _tabs: Map<number, ComponentRef<RouterTabComponent>> = new Map();
 
     constructor(public router: Router,
-                public tabsEvent: TabsEvent,
+                public tabsManager: TabsManager,
+                public urlParser: UrlParser,
                 public resolver: ComponentFactoryResolver) {
     }
 
     ngOnInit() {
-        this.tabsEvent.addTabSubject.filter(val => val != null)
+        this.tabsManager.addTabSubject.filter(val => val != null)
             .subscribe((routerTab: RouterTab) => {
                 const factory: ComponentFactory<RouterTabComponent> = this.resolver.resolveComponentFactory(RouterTabComponent);
                 let componentRef: ComponentRef<RouterTabComponent> = this._container.createComponent(factory);
@@ -34,22 +36,24 @@ export class RouterTabsComponent implements OnInit {
                 component.hidden = !routerTab.selected;
 
                 this._tabs.set(routerTab.tabId, componentRef);
+                this._updateAddTabHref();
             });
 
-        this.tabsEvent.removeTabSubject.filter(val => val != null)
+        this.tabsManager.removeTabSubject.filter(val => val != null)
             .subscribe((tabId: number) => {
                 let componentRef: ComponentRef<RouterTabComponent> = this._tabs.get(tabId);
                 componentRef.destroy();
                 this._tabs.delete(tabId);
             });
 
-        this.tabsEvent.switchTabSubject.filter(val => val != null)
+        this.tabsManager.switchTabSubject.filter(val => val != null)
             .subscribe((tabId: number) => {
                 this._tabs.forEach((value: ComponentRef<RouterTabComponent>, key: number) => {
                     let component: RouterTabComponent = value.instance;
                     if (tabId == key) {
                         component.routerTab.selected = true;
                         component.hidden = false;
+                        this._updateSwitchTabHref(component.routerTab);
                     } else {
                         component.routerTab.selected = false;
                         component.hidden = true;
@@ -57,7 +61,7 @@ export class RouterTabsComponent implements OnInit {
                 });
             });
 
-        this.tabsEvent.navigateSubject.filter(val => val != null)
+        this.tabsManager.navigateSubject.filter(val => val != null)
             .subscribe(({pre, next}) => {
                 if (isUrlStateEquals(pre, next)) {
                     return;
@@ -71,11 +75,11 @@ export class RouterTabsComponent implements OnInit {
 
                 let componentRef: ComponentRef<RouterTabComponent> = this._tabs.get(this.router.tab.tabId);
                 componentRef.instance.destroyComponent();
-                componentRef.instance.initComponent();
                 this._publishEvents(pre, next, 'pushState');
+                componentRef.instance.initComponent();
             });
 
-        this.tabsEvent.goBackSubject.filter(val => val != null)
+        this.tabsManager.goBackSubject.filter(val => val != null)
             .subscribe(({pre, next}) => {
                 if (isUrlStateEquals(pre, next)) {
                     return;
@@ -89,30 +93,37 @@ export class RouterTabsComponent implements OnInit {
 
                 let componentRef: ComponentRef<RouterTabComponent> = this._tabs.get(this.router.tab.tabId);
                 componentRef.instance.destroyComponent();
-                componentRef.instance.initComponent();
                 this._publishEvents(pre, next, 'replaceState');
+                componentRef.instance.initComponent();
             });
     }
 
     private _publishEvents(pre: UrlState, next: UrlState, mode: 'replaceState' | 'pushState') {
         let params_changed: boolean = false;
-        if (!isParamsEquals(pre.pathParams, next.pathParams)) {
+        if (isUrlStateLike(pre, next) && !isParamsEquals(pre.pathParams, next.pathParams)) {
             params_changed = true;
-            this.tabsEvent.pathParams.next(next.pathParams);
+            this.tabsManager.pathParams.next(next.pathParams);
+            this.tabsManager.current._pathParamsSubject.next(next.pathParams);
         }
 
         if (!isParamsEquals(pre.queryParams, next.queryParams)) {
             params_changed = true;
-            this.tabsEvent.pathParams.next(next.queryParams);
+            this.tabsManager.queryParams.next(next.queryParams);
+            this.tabsManager.current._queryParamsSubject.next(next.queryParams);
         }
 
         if (params_changed) {
-            this.tabsEvent.pathParams.next({...next.queryParams, ...next.pathParams});
+            this.tabsManager.params.next({...next.queryParams, ...next.pathParams});
+            this.tabsManager.current._paramsSubject.next({...next.queryParams, ...next.pathParams});
         }
 
         if (pre.fragment != next.fragment) {
-            this.tabsEvent.fragment.next(next.fragment);
+            this.tabsManager.fragment.next(next.fragment);
+            this.tabsManager.current._fragmentSubject.next(next.fragment);
         }
+
+        let params = {...next.queryParams, ...next.pathParams};
+        this.tabsManager.current.snapshot = new Snapshot(params, next.pathParams, next.queryParams, next.fragment);
 
         switch (mode) {
             case 'replaceState':
@@ -124,4 +135,17 @@ export class RouterTabsComponent implements OnInit {
         }
     }
 
+    private _updateAddTabHref() {
+        let {queryParams, fragment} = this.urlParser.parseHref(window.location.href);
+        let href = this.urlParser.emptyRouteUrl('/', queryParams, fragment);
+        window.history.replaceState(null, null, href);
+    }
+
+    private _updateSwitchTabHref(tab: RouterTab) {
+        if (tab.current) {
+            window.history.replaceState(null, null, tab.current.href);
+        } else {
+            this._updateAddTabHref();
+        }
+    }
 }

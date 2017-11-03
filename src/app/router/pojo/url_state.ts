@@ -27,6 +27,9 @@ export class UrlState {
     }
 }
 
+/**
+ * @internal
+ */
 @Injectable()
 export class UrlParser {
 
@@ -50,7 +53,7 @@ export class UrlParser {
         return route ? new UrlState(this._base_url, route, segments, pathParams, queryParams, fragment, href) : null;
     }
 
-    createUrlState(segments: any[] | string, extras?: NavigationExtras): UrlState {
+    createUrlState(segments: any[] | string, extras: NavigationExtras): UrlState {
         segments = Array.isArray(segments) ? segments : [segments];
         const parse_result = this.parseRoute(segments);
         if (!parse_result) throw Error(`路由不存在, ${segments.join('/')}`);
@@ -62,7 +65,7 @@ export class UrlParser {
         let dist_param: QueryParams, dist_fragment;
 
         if (extras && !extras.queryParamsHandling) {
-            dist_param = {};
+            dist_param = extras.queryParams;
         } else if (extras && extras.queryParamsHandling == 'merge') {
             dist_param = {...curr_queryParams, ...extras.queryParams};
         } else if (extras && extras.queryParamsHandling == 'preserve') {
@@ -83,9 +86,8 @@ export class UrlParser {
         return new UrlState(this._base_url, route, segments, pathParams, queryParams, fragment, uri.toString());
     }
 
-    createEmptyUrlState(queryParams: QueryParams = {}, fragment: string = ''): UrlState {
-        let uri = new URI(this._base_url).query(queryParams).fragment(fragment);
-        return new UrlState(this._base_url, null, null, null, queryParams, fragment, uri.toString());
+    createEmptyUrlState(): UrlState {
+        return new UrlState(this._base_url, null, null, {}, {}, '', this._base_url);
     }
 
     /**
@@ -110,7 +112,7 @@ export class UrlParser {
             let regex = new RegExp(pathToRegexp(route.path));
             if (regex.test(path)) {
                 let keys = [];
-                let regexp = pathToRegexp(route.path, keys);
+                let regexp = pathToRegexp(route.path, keys, {sensitive: true, strict: true});
                 let pathParams: any = {};
                 if (keys.length > 0) {
                     let result = regexp.exec(path);
@@ -125,6 +127,11 @@ export class UrlParser {
             }
         }
         return null;
+    }
+
+    emptyRouteUrl(segments: string[] | string, queryParams: QueryParams, fragment: string): string {
+        segments = Array.isArray(segments) ? segments : [segments];
+        return new URI().relativeTo(this._base_url).segment(segments).query(queryParams).fragment(fragment).toString();
     }
 }
 
@@ -149,6 +156,10 @@ export function isParamsEquals(p1: Params, p2: Params): boolean {
             if (p2[key] != p1[key]) return false;
         }
         return true;
+    }
+
+    if (!p1 || !p2) {
+        return false;
     }
 
     return p1EqP2(p1, p2) && p1EqP2(p2, p1);

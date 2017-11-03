@@ -7,10 +7,10 @@ import {Fragment, isUrlStateEquals, UrlParser, UrlState} from './pojo/url_state'
 import {Snapshot} from './pojo/snapshot';
 
 /**
- * @inner
+ * @internal
  */
 @Injectable()
-export class TabsEvent {
+export class TabsManager {
 
     constructor(private urlParser: UrlParser) {
     }
@@ -36,8 +36,7 @@ export class TabsEvent {
 
     addTab() {
         //add tab
-        let {queryParams, fragment} = this.urlParser.parseHref(window.location.href);
-        let emptyState = this.urlParser.createEmptyUrlState(queryParams, fragment);
+        let emptyState = this.urlParser.createEmptyUrlState();
         let tab = new RouterTab(emptyState);
         this.tabs.push(tab);
         this.tabsEvent.next(this.tabs);
@@ -61,7 +60,10 @@ export class TabsEvent {
     }
 
     removeTab(tabId: number) {
-        if (this.tabs.length <= 1) return;
+        if (this.tabs.length <= 1) {
+            console.warn('至少保留一个tab页，不能被删除了');
+            return;
+        }
 
         let index = this.tabs.map(tab => tab.tabId).indexOf(tabId);
         this.tabs.splice(index, 1);

@@ -4,11 +4,9 @@ import {Observable} from 'rxjs/Observable';
 import {RouterTab} from './router_tab';
 import {NavigationExtras, Params, PathParams, QueryParams} from './pojo/params';
 import {Snapshot} from './pojo/snapshot';
-import {TabsEvent} from './events';
-import {UrlParser, UrlState} from './pojo/url_state';
+import {TabsManager} from './tab_manager';
+import {UrlParser} from './pojo/url_state';
 import 'rxjs/add/observable/of';
-
-const _init_url = window.location.href;
 
 /**
  //tabs
@@ -44,9 +42,11 @@ const _init_url = window.location.href;
 @Injectable()
 export class Router {
 
-    constructor(public tabsEvent: TabsEvent,
-                public urlParser: UrlParser,
-                public location: Location) {
+    private _init_url: string = window.location.href;
+
+    constructor(private tabsManager: TabsManager,
+                private urlParser: UrlParser,
+                private location: Location) {
         this._init();
     }
 
@@ -54,47 +54,44 @@ export class Router {
         this.addTab();
         this._initDefaultState();
         this.location.subscribe((event: PopStateEvent) => {
-            let urlState: UrlState = this.urlParser.parseUrlState(window.location.href);
-            this.navigate(urlState.segments, {
+            let {segments, queryParams, fragment} = this.urlParser.parseHref(window.location.href);
+            this.navigate(segments, {
                 queryParamsHandling: 'merge',
-                queryParams: urlState.queryParams,
+                queryParams: queryParams,
                 preserveFragment: true,
-                fragment: urlState.fragment
+                fragment: fragment
             });
         });
     }
 
     private _initDefaultState() {
-        let init_state: UrlState = this.urlParser.parseUrlState(_init_url);
-        if (init_state) {
-            let {segments, queryParams, fragment} = this.urlParser.parseHref(_init_url);
-            this.navigateByUrl(segments, {
-                fragment: fragment,
-                queryParams: queryParams,
-                queryParamsHandling: 'preserve',
-                preserveFragment: true
-            });
-        }
+        let {segments, queryParams, fragment} = this.urlParser.parseHref(this._init_url);
+        this.navigateByUrl(segments, {
+            fragment: fragment,
+            queryParams: queryParams,
+            queryParamsHandling: 'preserve',
+            preserveFragment: true
+        });
     }
 
     get tabs(): Observable<RouterTab[]> {
-        return this.tabsEvent.tabsEvent.asObservable();
+        return this.tabsManager.tabsEvent.asObservable();
     }
 
     get tab(): RouterTab {
-        return this.tabsEvent.current;
+        return this.tabsManager.current;
     }
 
     addTab() {
-        this.tabsEvent.addTab();
+        this.tabsManager.addTab();
     }
 
     selectTab(tabId: number) {
-        this.tabsEvent.selectTab(tabId);
+        this.tabsManager.selectTab(tabId);
     }
 
     removeTab(tabId: number) {
-        this.tabsEvent.removeTab(tabId);
+        this.tabsManager.removeTab(tabId);
     }
 
     navigate(segments: any[] | string, extra: NavigationExtras) {
@@ -102,50 +99,50 @@ export class Router {
     }
 
     navigateByUrl(segments: any[] | string, extras: NavigationExtras) {
-        this.tabsEvent.navigateByUrl(segments, extras);
+        this.tabsManager.navigateByUrl(segments, extras);
     }
 
     get params(): Observable<Params> {
-        return this.tabsEvent.params.asObservable();
+        return this.tabsManager.params.asObservable();
     }
 
     get pathParams(): Observable<PathParams> {
-        return this.tabsEvent.pathParams.asObservable();
+        return this.tabsManager.pathParams.asObservable();
     }
 
     get queryParams(): Observable<QueryParams> {
-        return this.tabsEvent.queryParams.asObservable();
+        return this.tabsManager.queryParams.asObservable();
     }
 
     get fragment(): Observable<string> {
-        return this.tabsEvent.fragment.asObservable();
+        return this.tabsManager.fragment.asObservable();
     }
 
     get snapshot(): Snapshot {
-        return this.tabsEvent.snapshot;
+        return this.tabsManager.snapshot;
     }
 
     canGo(): boolean {
-        return this.tabsEvent.canGo();
+        return this.tabsManager.canGo();
     }
 
     canBack(): boolean {
-        return this.tabsEvent.canBack();
+        return this.tabsManager.canBack();
     }
 
     get canGo$(): Observable<boolean> {
-        return this.tabsEvent.canGoSubject.asObservable();
+        return this.tabsManager.canGoSubject.asObservable();
     }
 
     get canBack$(): Observable<boolean> {
-        return this.tabsEvent.canBackSubject.asObservable();
+        return this.tabsManager.canBackSubject.asObservable();
     }
 
     go(): void {
-        this.tabsEvent.go();
+        this.tabsManager.go();
     }
 
     back(): void {
-        this.tabsEvent.back();
+        this.tabsManager.back();
     }
 }

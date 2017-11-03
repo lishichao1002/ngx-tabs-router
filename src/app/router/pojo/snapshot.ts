@@ -10,4 +10,8 @@ export class Snapshot {
 
     }
 
+    toString() {
+        return `params: ${JSON.stringify(this.params)}, pathParams: ${JSON.stringify(this.pathParams)}, queryParams: ${JSON.stringify(this.queryParams)}, fragment: ${this.fragment}`;
+    }
+
 }
