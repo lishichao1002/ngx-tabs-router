@@ -1,8 +1,7 @@
-import {Directive, HostBinding, HostListener, Input, OnChanges, OnDestroy, OnInit} from '@angular/core';
-import {Subscription} from 'rxjs/Subscription';
-import {Params, QueryParamsHandling} from '../pojo/params';
-import {Router} from '../router';
-import {UrlParser} from '../pojo/url_state';
+import {Directive, HostBinding, HostListener, Input} from "@angular/core";
+import {QueryParamsHandling} from "../pojo/params";
+import {Router} from "../router";
+import {UrlParser} from "../pojo/url_state";
 
 @Directive({selector: ':not(a)[routerLink]'})
 export class RouterLink {
@@ -55,7 +54,7 @@ export class RouterLink {
 @Directive({
     selector: 'a[routerLink]'
 })
-export class RouterLinkWithHref implements OnChanges, OnInit, OnDestroy {
+export class RouterLinkWithHref {
 
     @HostBinding('attr.target') @Input() target: string;
     @Input() queryParams: { [k: string]: any };
@@ -119,25 +118,6 @@ export class RouterLinkWithHref implements OnChanges, OnInit, OnDestroy {
             });
             this.href = urlState.href;
         }
-    }
-
-    private _productId: string;
-    private _language: string;
-    private _subscription: Subscription;
-
-    ngOnInit() {
-        this._subscription = this.router.params.subscribe((params: Params) => {
-            let {product, language} = params;
-            if (product != this._productId || language != this._language) {
-                this._productId = product;
-                this._language = language;
-                this.ngOnChanges({});
-            }
-        });
-    }
-
-    ngOnDestroy() {
-        this._subscription && this._subscription.unsubscribe();
     }
 
 }

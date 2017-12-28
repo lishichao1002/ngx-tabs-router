@@ -1,13 +1,14 @@
-import {Injectable} from '@angular/core';
-import {Location} from '@angular/common';
-import {Observable} from 'rxjs/Observable';
-import {RouterTab} from './router_tab';
-import {NavigationExtras, Params, PathParams, QueryParams} from './pojo/params';
-import {Snapshot} from './pojo/snapshot';
-import {TabsManager} from './tab_manager';
-import {UrlParser} from './pojo/url_state';
-import {Event} from './pojo/events';
-import 'rxjs/add/observable/of';
+import {Injectable, Injector} from "@angular/core";
+import {Location} from "@angular/common";
+import {Observable} from "rxjs/Observable";
+import {RouterTab} from "./router_tab";
+import {NavigationExtras, Params, PathParams, QueryParams} from "./pojo/params";
+import {Snapshot} from "./pojo/snapshot";
+import {TabsManager} from "./tab_manager";
+import {UrlParser} from "./pojo/url_state";
+import {Event} from "./pojo/events";
+import "rxjs/add/observable/of";
+import {ITitle, Route} from "./pojo/route";
 
 /**
  //tabs
@@ -47,12 +48,13 @@ export class Router {
 
     constructor(private tabsManager: TabsManager,
                 private urlParser: UrlParser,
+                private injector: Injector,
                 private location: Location) {
         this._init();
     }
 
     private _init() {
-        this.addTab();
+        this.tabsManager.initTab();
         this._initDefaultState();
         this.location.subscribe((event: PopStateEvent) => {
             let {segments, queryParams, fragment} = this.urlParser.parseHref(window.location.href);
@@ -149,5 +151,22 @@ export class Router {
 
     back(): void {
         this.tabsManager.back();
+    }
+
+    getTitle(route: Route, tab: RouterTab): string {
+        if (route) {
+            if (route.title) {
+                let title = route.title;
+                if (typeof title == 'string') {
+                    return title;
+                } else {
+                    let iTitle: ITitle = this.injector.get(title);
+                    return iTitle.getTitle(route, tab);
+                }
+            }
+            return '该路由未设置title';
+        } else {
+            return '空路由';
+        }
     }
 }

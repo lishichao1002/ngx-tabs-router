@@ -1,11 +1,12 @@
-import {NavigationExtras, Params, PathParams, QueryParams} from './pojo/params';
-import {Injectable} from '@angular/core';
-import {Subject} from 'rxjs/Subject';
-import {RouterTab} from './router_tab';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Fragment, isUrlStateEquals, UrlParser, UrlState} from './pojo/url_state';
-import {Snapshot} from './pojo/snapshot';
-import {Event} from './pojo/events';
+import {NavigationExtras, Params, PathParams, QueryParams} from "./pojo/params";
+import {Injectable, Injector} from "@angular/core";
+import {Subject} from "rxjs/Subject";
+import {RouterTab} from "./router_tab";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Fragment, isUrlStateEquals, UrlParser, UrlState} from "./pojo/url_state";
+import {Snapshot} from "./pojo/snapshot";
+import {Event} from "./pojo/events";
+import {Router} from "./router";
 
 /**
  * @internal
@@ -13,9 +14,9 @@ import {Event} from './pojo/events';
 @Injectable()
 export class TabsManager {
 
-    constructor(private urlParser: UrlParser) {
+    constructor(private urlParser: UrlParser,
+                private injector: Injector) {
     }
-
 
     public current: RouterTab;
     public tabs: RouterTab[] = [];
@@ -37,6 +38,15 @@ export class TabsManager {
 
     public get snapshot(): Snapshot {
         return this.current ? this.current.snapshot : null;
+    }
+
+    initTab() {
+        let emptyState = this.urlParser.createInitUrlState();
+        let tab = new RouterTab(emptyState);
+        this.tabs.push(tab);
+        this.tabsSubject.next(this.tabs);
+        this.addTabSubject.next(tab);
+        this.selectTab(tab.tabId);
     }
 
     addTab() {
@@ -87,6 +97,12 @@ export class TabsManager {
 
         let pre: UrlState = this.current.current;
         let next: UrlState = this.urlParser.createUrlState(segments, extras);
+
+        /** 处理重定向 */
+        if (next.route && next.route.redirectTo) {
+            return this.navigateByUrl(next.route.redirectTo, extras);
+        }
+
         if (isUrlStateEquals(pre, next)) {
             console.log('路由地址一样，不处理');
             return;

@@ -1,9 +1,10 @@
-import {Observable} from 'rxjs/Observable';
-import {Snapshot} from './pojo/snapshot';
-import {Fragment, UrlState} from './pojo/url_state';
-import {Params, PathParams, QueryParams} from './pojo/params';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Subject} from 'rxjs/Subject';
+import {Observable} from "rxjs/Observable";
+import {Snapshot} from "./pojo/snapshot";
+import {Fragment, UrlState} from "./pojo/url_state";
+import {Params, PathParams, QueryParams} from "./pojo/params";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Subject} from "rxjs/Subject";
+import {Route} from "./pojo/route";
 
 let tabId: number = 0;
 
@@ -72,7 +73,7 @@ export class RouterTab {
     /** @internal */
     navigate(urlState: UrlState) {
         if (this.canGo()) {
-            this._stack.splice(this._stack_pointer, this._stack.length - this._stack_pointer);
+            this._stack.splice(this._stack_pointer + 1, this._stack.length - this._stack_pointer);
         }
         this._stack.push(urlState);
         this._stack_pointer++;
@@ -80,7 +81,7 @@ export class RouterTab {
         this._current = urlState;
         this._canGoSubject.next(this.canGo());
         this._canBackSubject.next(this.canBack());
-        console.log(this.tabId, this._stack_pointer, this._stack.map(item => item.route.title).join(','));
+        console.log(`tabId[${this.tabId}]`, `指针位置[${this._stack_pointer + 1}]`, this._stack.map(item => `${this._getTitle(item.route)}[${item.segments.join('/')}]`).join(','));
     }
 
     canGo(): boolean {
@@ -98,7 +99,7 @@ export class RouterTab {
             this._canGoSubject.next(this.canGo());
             this._canBackSubject.next(this.canBack());
         }
-        console.log(this.tabId, this._stack_pointer, this._stack.map(item => item.route.title).join(','));
+        console.log(`tabId[${this.tabId}]`, `指针位置[${this._stack_pointer + 1}]`, this._stack.map(item => `${this._getTitle(item.route)}[${item.segments.join('/')}]`).join(','));
     }
 
     back() {
@@ -108,7 +109,7 @@ export class RouterTab {
             this._canGoSubject.next(this.canGo());
             this._canBackSubject.next(this.canBack());
         }
-        console.log(this.tabId, this._stack_pointer, this._stack.map(item => item.route.title).join(','));
+        console.log(`tabId[${this.tabId}]`, `指针位置[${this._stack_pointer + 1}]`, this._stack.map(item => `${this._getTitle(item.route)}[${item.segments.join('/')}]`).join(','));
     }
 
     canGo$(): Observable<boolean> {
@@ -117,6 +118,12 @@ export class RouterTab {
 
     canBack$(): Observable<boolean> {
         return this._canBackSubject.asObservable();
+    }
+
+    private _getTitle(route: Route) {
+        if (typeof route.title == 'string')
+            return route.title;
+        return route.path;
     }
 
 }

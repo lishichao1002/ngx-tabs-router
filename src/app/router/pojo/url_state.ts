@@ -1,9 +1,9 @@
-import {Route, ROUTES} from './route';
-import * as URI from 'urijs';
-import * as pathToRegexp from 'path-to-regexp';
-import {NavigationExtras, Params, PathParams, QueryParams} from './params';
-import {forwardRef, Inject, Injectable} from '@angular/core';
-import {LocationStrategy} from '@angular/common';
+import {Route, ROUTES} from "./route";
+import * as URI from "urijs";
+import * as pathToRegexp from "path-to-regexp";
+import {NavigationExtras, Params, PathParams, QueryParams} from "./params";
+import {forwardRef, Inject, Injectable} from "@angular/core";
+import {LocationStrategy} from "@angular/common";
 
 export type UrlSegment = string;
 export type Fragment = string;
@@ -46,7 +46,7 @@ export class UrlParser {
      */
     parseUrlState(href: string): UrlState {
         const uri = new URI(href).relativeTo(this._base_url);
-        const segments: UrlSegment[] = uri.segment();
+        const segments: UrlSegment[] = this.segments(href);
         const queryParams: QueryParams = uri.query(true);
         const fragment: string = uri.fragment();
         const {route, pathParams} = this.parseRoute(segments) || {route: null, pathParams: null};
@@ -82,12 +82,21 @@ export class UrlParser {
     }
 
     buildUrlState(route: Route, segments: UrlSegment[], pathParams: PathParams, queryParams: QueryParams = {}, fragment: string = ''): UrlState {
-        let uri = new URI(segments.join('/')).absoluteTo(`${window.location.origin}${this._base_url}`).query(queryParams).fragment(fragment);
+        let path = segments.join('/');
+        path = path.startsWith('/') ? path.substring(1) : path;
+        let uri = new URI(path).absoluteTo(`${window.location.origin}${this._base_url}`).query(queryParams).fragment(fragment);
         return new UrlState(this._base_url, route, segments, pathParams, queryParams, fragment, uri.toString());
     }
 
     createEmptyUrlState(): UrlState {
-        return new UrlState(this._base_url, null, null, {}, {}, '', this._base_url);
+        let {queryParams, fragment} = this.parseHref(window.location.href);
+        let href = this.emptyRouteUrl('/', queryParams, fragment);
+        return new UrlState(this._base_url, null, null, {}, queryParams, fragment, href);
+    }
+
+    createInitUrlState(): UrlState {
+        let href = this.emptyRouteUrl('/', {}, '');
+        return new UrlState(this._base_url, null, null, {}, {}, '', href);
     }
 
     /**
@@ -95,7 +104,7 @@ export class UrlParser {
      */
     parseHref(href: string): { segments: UrlSegment[], queryParams: QueryParams, fragment: string } {
         let uri = new URI(href).relativeTo(this._base_url);
-        const segments: UrlSegment[] = uri.segment();
+        const segments: UrlSegment[] = this.segments(href);
         const queryParams: QueryParams = uri.query(true);
         const fragment: string = uri.fragment();
         return {
@@ -107,6 +116,7 @@ export class UrlParser {
 
     parseRoute(segments: UrlSegment[]): { route: Route, pathParams: PathParams } {
         let path = segments.join('/');
+        path = path.startsWith('/') ? path.substring(1) : path;
         for (let i = 0; i < this.routers.length; i++) {
             let route: Route = this.routers[i];
             let regex = new RegExp(pathToRegexp(route.path));
@@ -132,6 +142,17 @@ export class UrlParser {
     emptyRouteUrl(segments: string[] | string, queryParams: QueryParams, fragment: string): string {
         segments = Array.isArray(segments) ? segments : [segments];
         return new URI().relativeTo(this._base_url).segment(segments).query(queryParams).fragment(fragment).toString();
+    }
+
+    segments(href: string): string[] {
+        let uri1 = new URI(href);
+        let path1 = uri1.path();
+        if (path1.startsWith(this._base_url)) {
+            let path2 = path1.substr(this._base_url.length);
+            return new URI(path2).segment();
+        } else {
+            return uri1.segment();
+        }
     }
 }
 
