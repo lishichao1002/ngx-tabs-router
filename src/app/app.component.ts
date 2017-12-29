@@ -12,21 +12,29 @@ import {Router} from './router/router';
     template: `
         <ul>
             <li>
-                <button routerLinkActive="selected">
-                    <a routerLink="demo1">demo1</a>
-                </button>
-            </li>
-            <li><a routerLink="demo2" [queryParams]="{a: 'a', b: 'b'}" routerLinkActive="selected">demo2</a></li>
-            <li><a [routerLink]="['demo3/A']" [queryParams]="{d: 'A', c: 'c'}" queryParamsHandling="merge" routerLinkActive="selected">demo3-A</a>
-            </li>
-            <li><a [routerLink]="['demo3/B']" [queryParams]="{d: 'B', c: 'c'}" queryParamsHandling="merge" routerLinkActive="selected">demo3-B</a>
+                <button routerLink="demo1" [queryParamsHandling]="''">demo1?</button>
+                <button routerLink="demo1" [queryParamsHandling]="''" [queryParams]="{a: '1'}">demo1?a</button>
+                <button routerLink="demo1" [queryParamsHandling]="'merge'">demo1??</button>
             </li>
             <li>
-                <a [routerLink]="['demo3/C']" queryParamsHandling="merge" routerLinkActive="selected"
-                   routerLinkActive="selected">demo3-C</a>
+                <button routerLink="demo2" [queryParamsHandling]="''">demo2?</button>
+                <button routerLink="demo2" [queryParamsHandling]="''" [queryParams]="{b: '1'}">demo2?b</button>
+                <button routerLink="demo2" [queryParamsHandling]="'merge'">demo2??</button>
+            <li>
+                <button routerLink="demo3/A" [queryParamsHandling]="''">demo3A?</button>
+                <button routerLink="demo3/A" [queryParamsHandling]="''" [queryParams]="{c: '1'}">demo3A?c</button>
+                <button routerLink="demo3/A" [queryParamsHandling]="'merge'">demo3A??</button>
             </li>
             <li>
-                <a [routerLink]="['otherwise']" [queryParams]="{d: 'd2', f: 'f'}" queryParamsHandling="merge" routerLinkActive="selected">otherwise</a>
+                <button routerLink="demo3/B" [queryParamsHandling]="''">demo3B?</button>
+                <button routerLink="demo3/B" [queryParamsHandling]="''" [queryParams]="{d: '1'}">demo3B?d</button>
+                <button routerLink="demo3/B" [queryParamsHandling]="'merge'">demo3B??</button>
+            </li>
+            <li>
+                <a [routerLink]="['demo3/C']" queryParamsHandling="merge">demo3-C</a>
+            </li>
+            <li>
+                <a [routerLink]="['otherwise']" [queryParams]="{d: 'd2', f: 'f'}" queryParamsHandling="merge">otherwise</a>
             </li>
         </ul>
 
@@ -44,25 +52,25 @@ export class AppComponent {
 
     ngOnInit() {
         console.warn('-------------------------------------------------');
-        this.router.events.subscribe((event) => {
-            console.log('app events', event);
-        });
-
-        this.router.params.subscribe((params) => {
-            console.log('app params ', params, this.router.tab.tabId);
-        });
-
-        this.router.queryParams.subscribe((queryParams) => {
-            console.log('app queryParams ', queryParams, this.router.tab.tabId);
-        });
-
-        this.router.pathParams.subscribe((pathParams) => {
-            console.log('app pathParams ', pathParams, this.router.tab.tabId);
-        });
-
-        this.router.fragment.subscribe((fragment) => {
-            console.log('app fragment ', fragment, this.router.tab.tabId);
-        });
+        // this.router.events.subscribe((event) => {
+        //     console.log('app events', event);
+        // });
+        //
+        // this.router.params.subscribe((params) => {
+        //     console.log('app params ', params, this.router.tab.tabId);
+        // });
+        //
+        // this.router.queryParams.subscribe((queryParams) => {
+        //     console.log('app queryParams ', queryParams, this.router.tab.tabId);
+        // });
+        //
+        // this.router.pathParams.subscribe((pathParams) => {
+        //     console.log('app pathParams ', pathParams, this.router.tab.tabId);
+        // });
+        //
+        // this.router.fragment.subscribe((fragment) => {
+        //     console.log('app fragment ', fragment, this.router.tab.tabId);
+        // });
     }
 
     ngOnDestroy() {

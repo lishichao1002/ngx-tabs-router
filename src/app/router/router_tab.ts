@@ -1,10 +1,10 @@
-import {Observable} from "rxjs/Observable";
-import {Snapshot} from "./pojo/snapshot";
-import {Fragment, UrlState} from "./pojo/url_state";
-import {Params, PathParams, QueryParams} from "./pojo/params";
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
-import {Subject} from "rxjs/Subject";
-import {Route} from "./pojo/route";
+import {Observable} from 'rxjs/Observable';
+import {Snapshot} from './pojo/snapshot';
+import {Fragment, UrlState} from './pojo/url_state';
+import {Params, PathParams, QueryParams} from './pojo/params';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Subject} from 'rxjs/Subject';
+import {Route} from './pojo/route';
 
 let tabId: number = 0;
 

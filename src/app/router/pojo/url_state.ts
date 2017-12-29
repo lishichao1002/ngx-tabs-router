@@ -1,9 +1,9 @@
-import {Route, ROUTES} from "./route";
-import * as URI from "urijs";
-import * as pathToRegexp from "path-to-regexp";
-import {NavigationExtras, Params, PathParams, QueryParams} from "./params";
-import {forwardRef, Inject, Injectable} from "@angular/core";
-import {LocationStrategy} from "@angular/common";
+import {Route, ROUTES} from './route';
+import * as URI from 'urijs';
+import * as pathToRegexp from 'path-to-regexp';
+import {NavigationExtras, Params, PathParams, QueryParams} from './params';
+import {forwardRef, Inject, Injectable} from '@angular/core';
+import {LocationStrategy} from '@angular/common';
 
 export type UrlSegment = string;
 export type Fragment = string;

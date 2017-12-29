@@ -86,6 +86,9 @@ export class RouterLinkActive implements OnChanges,
 
     private isLinkActive(router: Router): (link: (RouterLink | RouterLinkWithHref)) => boolean {
         return (link: RouterLink | RouterLinkWithHref) => {
+            if (!router.tab) {
+                return false;
+            }
             let urlState: UrlState = router.tab.current;
             if (!urlState || !urlState.segments || !link.segments) {
                 return false;

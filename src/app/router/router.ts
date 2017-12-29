@@ -1,14 +1,14 @@
-import {Injectable, Injector} from "@angular/core";
-import {Location} from "@angular/common";
-import {Observable} from "rxjs/Observable";
-import {RouterTab} from "./router_tab";
-import {NavigationExtras, Params, PathParams, QueryParams} from "./pojo/params";
-import {Snapshot} from "./pojo/snapshot";
-import {TabsManager} from "./tab_manager";
-import {UrlParser} from "./pojo/url_state";
-import {Event} from "./pojo/events";
-import "rxjs/add/observable/of";
-import {ITitle, Route} from "./pojo/route";
+import {Injectable, Injector} from '@angular/core';
+import {Location} from '@angular/common';
+import {Observable} from 'rxjs/Observable';
+import {RouterTab} from './router_tab';
+import {NavigationExtras, Params, PathParams, QueryParams} from './pojo/params';
+import {Snapshot} from './pojo/snapshot';
+import {TabsManager} from './tab_manager';
+import {UrlParser} from './pojo/url_state';
+import {Event} from './pojo/events';
+import 'rxjs/add/observable/of';
+import {ITitle, Route} from './pojo/route';
 
 /**
  //tabs
@@ -46,6 +46,8 @@ export class Router {
 
     private _init_url: string = window.location.href;
 
+    private _mode: 'single' | 'multiple';
+
     constructor(private tabsManager: TabsManager,
                 private urlParser: UrlParser,
                 private injector: Injector,
@@ -54,7 +56,7 @@ export class Router {
     }
 
     private _init() {
-        this.tabsManager.initTab();
+        this._mode = <any>window.localStorage.getItem('router_mode') || 'single';
         this._initDefaultState();
         this.location.subscribe((event: PopStateEvent) => {
             let {segments, queryParams, fragment} = this.urlParser.parseHref(window.location.href);
@@ -73,8 +75,18 @@ export class Router {
             fragment: fragment,
             queryParams: queryParams,
             queryParamsHandling: 'preserve',
-            preserveFragment: true
+            preserveFragment: true,
+            replaceUrl: true
         });
+    }
+
+    get mode() {
+        return this._mode;
+    }
+
+    set mode(_mode: 'single' | 'multiple') {
+        window.localStorage.setItem('router_mode', _mode);
+        window.location.reload();
     }
 
     get tabs(): Observable<RouterTab[]> {
@@ -85,8 +97,8 @@ export class Router {
         return this.tabsManager.current;
     }
 
-    addTab() {
-        this.tabsManager.addTab();
+    addTab(segments: any[] | string, extras: NavigationExtras = {}) {
+        this.tabsManager.addTab(segments, extras);
     }
 
     selectTab(tabId: number) {
@@ -102,7 +114,7 @@ export class Router {
     }
 
     navigateByUrl(segments: any[] | string, extras: NavigationExtras) {
-        this.tabsManager.navigateByUrl(segments, extras);
+        this.tabsManager.navigateByUrl(segments, extras, this.mode);
     }
 
     get events(): Observable<Event> {

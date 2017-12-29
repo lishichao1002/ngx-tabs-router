@@ -7,15 +7,15 @@ import {
     OnInit,
     ViewChild,
     ViewContainerRef
-} from "@angular/core";
-import {Router} from "../router";
-import {TabsManager} from "../tab_manager";
-import {RouterTab} from "../router_tab";
-import {RouterTabComponent} from "./router-tab.component";
-import {isParamsEquals, isUrlStateEquals, isUrlStateLike, UrlParser, UrlState} from "../pojo/url_state";
-import "rxjs/add/operator/filter";
-import {Snapshot} from "../pojo/snapshot";
-import {AddTabEvent, NavigateEvent, RemoveTabEvent, SwitchTabEvent} from "../pojo/events";
+} from '@angular/core';
+import {Router} from '../router';
+import {TabsManager} from '../tab_manager';
+import {RouterTab} from '../router_tab';
+import {RouterTabComponent} from './router-tab.component';
+import {isParamsEquals, isUrlStateEquals, isUrlStateLike, UrlParser, UrlState} from '../pojo/url_state';
+import 'rxjs/add/operator/filter';
+import {Snapshot} from '../pojo/snapshot';
+import {AddTabEvent, NavigateEvent, RemoveTabEvent, SwitchTabEvent} from '../pojo/events';
 
 @Component({
     selector: 'router-tabs',
@@ -38,19 +38,19 @@ export class RouterTabsComponent implements OnInit {
 
     ngOnInit() {
         this.tabsManager.addTabSubject.filter(val => val != null)
-            .subscribe((routerTab: RouterTab) => {
+            .subscribe(({tab, next}) => {
                 const factory: ComponentFactory<RouterTabComponent> = this.resolver.resolveComponentFactory(RouterTabComponent);
                 let componentRef: ComponentRef<RouterTabComponent> = this._container.createComponent(factory);
 
                 let component: RouterTabComponent = componentRef.instance;
-                component.routerTab = routerTab;
-                component.hidden = !routerTab.selected;
+                component.routerTab = tab;
+                component.hidden = !tab.selected;
 
-                this._tabs.set(routerTab.tabId, componentRef);
-                this._updateAddTabHref();
+                this._tabs.set(tab.tabId, componentRef);
 
-                let {queryParams, fragment} = this.urlParser.parseHref(window.location.href);
-                routerTab.snapshot = new Snapshot(queryParams, {}, queryParams, fragment);
+                this._publishEvents(tab.current, next, 'pushState');
+                componentRef.instance.initComponent();
+                this.changeDetectorRef.detectChanges();
             });
 
         this.tabsManager.removeTabSubject.filter(val => val != null)
@@ -77,7 +77,8 @@ export class RouterTabsComponent implements OnInit {
             });
 
         this.tabsManager.navigateSubject.filter(val => val != null)
-            .subscribe(({pre, next}) => {
+            .subscribe(({next}) => {
+                let pre = this.router.tab.current;
                 if (isUrlStateEquals(pre, next)) {
                     return;
                 }
@@ -87,8 +88,8 @@ export class RouterTabsComponent implements OnInit {
                     console.log('路由相同，只更新路由地址参数，不重新创建路由组件');
                     return;
                 }
-
                 let componentRef: ComponentRef<RouterTabComponent> = this._tabs.get(this.router.tab.tabId);
+
                 componentRef.instance.destroyComponent();
                 this._publishEvents(pre, next, 'pushState');
                 componentRef.instance.initComponent();
@@ -96,7 +97,8 @@ export class RouterTabsComponent implements OnInit {
             });
 
         this.tabsManager.goBackSubject.filter(val => val != null)
-            .subscribe(({pre, next}) => {
+            .subscribe(({next}) => {
+                let pre = this.router.tab.current;
                 if (isUrlStateEquals(pre, next)) {
                     return;
                 }

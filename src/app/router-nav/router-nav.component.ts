@@ -22,7 +22,7 @@ import {RouterTab} from '../router/router_tab';
                 <button class="btn btn-success btn-sm"
                         [ngClass]="{'btn-danger': tab.selected}"
                         (click)="selectTab(tab.tabId)">
-                    {{tab.tabId}}
+                    {{tab.tabId}} {{tab?.current?.route?.title || 'Empty Route'}}
                 </button>
                 <button class="btn btn-success btn-sm"
                         (click)="removeTab(tab.tabId)"
@@ -56,7 +56,7 @@ export class RouterNavComponent {
     }
 
     addTab() {
-        this.router.addTab();
+        this.router.addTab('demo1');
     }
 
     selectTab(tabId: number) {
