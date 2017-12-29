@@ -32,7 +32,7 @@ export class TabsManager {
     public tabsSubject: Subject<RouterTab[]> = new BehaviorSubject(this.tabs);
 
     public eventsSubject: Subject<Event> = new Subject();
-    public addTabSubject: Subject<{ tab: RouterTab, next: UrlState }> = new BehaviorSubject(null);
+    public addTabSubject: Subject<{ tab: RouterTab, next: UrlState, extras: NavigationExtras }> = new BehaviorSubject(null);
     public switchTabSubject: Subject<number> = new BehaviorSubject(null);
     public removeTabSubject: Subject<number> = new BehaviorSubject(null);
     public navigateSubject: Subject<{ next: UrlState, extras: NavigationExtras }> = new BehaviorSubject(null);
@@ -58,7 +58,7 @@ export class TabsManager {
         this.tabs.push(tab);
         this.selectTab(tab.tabId);
         this.tabsSubject.next(this.tabs);
-        this.addTabSubject.next({tab, next});
+        this.addTabSubject.next({tab, next, extras});
         //select tab
     }
 

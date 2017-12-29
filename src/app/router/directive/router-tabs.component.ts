@@ -38,7 +38,7 @@ export class RouterTabsComponent implements OnInit {
 
     ngOnInit() {
         this.tabsManager.addTabSubject.filter(val => val != null)
-            .subscribe(({tab, next}) => {
+            .subscribe(({tab, next, extras}) => {
                 const factory: ComponentFactory<RouterTabComponent> = this.resolver.resolveComponentFactory(RouterTabComponent);
                 let componentRef: ComponentRef<RouterTabComponent> = this._container.createComponent(factory);
                 let component: RouterTabComponent = componentRef.instance;
@@ -47,7 +47,8 @@ export class RouterTabsComponent implements OnInit {
 
                 this._tabs.set(tab.tabId, componentRef);
 
-                this._publishEvents(tab.current, next, 'pushState');
+                let isPush: 'replaceState' | 'pushState' = extras.replaceUrl ? 'replaceState' : 'pushState';
+                this._publishEvents(tab.current, next, isPush);
                 componentRef.instance.initComponent();
                 this.changeDetectorRef.detectChanges();
             });

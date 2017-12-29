@@ -7,6 +7,7 @@ import {Demo2Component} from './demo/demo2.component';
 import {AppRoutingModule} from './app-routing.module';
 import {Demo3Component} from './demo/demo3.component';
 import {RouterNavComponent} from './router-nav/router-nav.component';
+import {NotFoundComponent} from './demo/404.component';
 
 @NgModule({
     declarations: [
@@ -14,6 +15,7 @@ import {RouterNavComponent} from './router-nav/router-nav.component';
         Demo1Component,
         Demo2Component,
         Demo3Component,
+        NotFoundComponent,
         RouterNavComponent
     ],
     imports: [

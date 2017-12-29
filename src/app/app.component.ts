@@ -31,10 +31,7 @@ import {Router} from './router/router';
                 <button routerLink="demo3/B" [queryParamsHandling]="'merge'">demo3B??</button>
             </li>
             <li>
-                <a [routerLink]="['demo3/C']" queryParamsHandling="merge">demo3-C</a>
-            </li>
-            <li>
-                <a [routerLink]="['otherwise']" [queryParams]="{d: 'd2', f: 'f'}" queryParamsHandling="merge">otherwise</a>
+                <a [routerLink]="['xxxx']" queryParamsHandling="merge">404</a>
             </li>
         </ul>
 

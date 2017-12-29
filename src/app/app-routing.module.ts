@@ -4,6 +4,7 @@ import {Demo1Component} from './demo/demo1.component';
 import {Demo2Component} from './demo/demo2.component';
 import {Demo3Component} from './demo/demo3.component';
 import {Routes} from './router/pojo/route';
+import {NotFoundComponent} from './demo/404.component';
 
 const routes: Routes = [
     {
@@ -22,9 +23,14 @@ const routes: Routes = [
         component: Demo3Component
     },
     {
-        title: 'otherwise',
+        title: '404',
+        path: '404',
+        component: NotFoundComponent
+    },
+    {
+        title: '404',
         path: '(.*)',
-        component: Demo3Component
+        redirectTo: '/404'
     }
 ];
 
