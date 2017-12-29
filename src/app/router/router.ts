@@ -64,7 +64,8 @@ export class Router {
                 queryParamsHandling: 'merge',
                 queryParams: queryParams,
                 preserveFragment: true,
-                fragment: fragment
+                fragment: fragment,
+                replaceUrl: true
             });
         });
     }

@@ -41,7 +41,6 @@ export class RouterTabsComponent implements OnInit {
             .subscribe(({tab, next}) => {
                 const factory: ComponentFactory<RouterTabComponent> = this.resolver.resolveComponentFactory(RouterTabComponent);
                 let componentRef: ComponentRef<RouterTabComponent> = this._container.createComponent(factory);
-
                 let component: RouterTabComponent = componentRef.instance;
                 component.routerTab = tab;
                 component.hidden = !tab.selected;
@@ -77,21 +76,22 @@ export class RouterTabsComponent implements OnInit {
             });
 
         this.tabsManager.navigateSubject.filter(val => val != null)
-            .subscribe(({next}) => {
+            .subscribe(({next, extras}) => {
                 let pre = this.router.tab.current;
                 if (isUrlStateEquals(pre, next)) {
                     return;
                 }
 
+                let isPush: 'replaceState' | 'pushState' = extras.replaceUrl ? 'replaceState' : 'pushState';
                 if (isUrlStateLike(pre, next)) {
-                    this._publishEvents(pre, next, 'pushState');
+                    this._publishEvents(pre, next, isPush);
                     console.log('路由相同，只更新路由地址参数，不重新创建路由组件');
                     return;
                 }
                 let componentRef: ComponentRef<RouterTabComponent> = this._tabs.get(this.router.tab.tabId);
 
                 componentRef.instance.destroyComponent();
-                this._publishEvents(pre, next, 'pushState');
+                this._publishEvents(pre, next, isPush);
                 componentRef.instance.initComponent();
                 this.changeDetectorRef.detectChanges();
             });

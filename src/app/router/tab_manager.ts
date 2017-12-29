@@ -35,7 +35,7 @@ export class TabsManager {
     public addTabSubject: Subject<{ tab: RouterTab, next: UrlState }> = new BehaviorSubject(null);
     public switchTabSubject: Subject<number> = new BehaviorSubject(null);
     public removeTabSubject: Subject<number> = new BehaviorSubject(null);
-    public navigateSubject: Subject<{ next: UrlState }> = new BehaviorSubject(null);
+    public navigateSubject: Subject<{ next: UrlState, extras: NavigationExtras }> = new BehaviorSubject(null);
     public goBackSubject: Subject<{ next: UrlState }> = new BehaviorSubject(null);
     public canGoSubject: Subject<boolean> = new BehaviorSubject(false);
     public canBackSubject: Subject<boolean> = new BehaviorSubject(false);
@@ -56,10 +56,10 @@ export class TabsManager {
         let next: UrlState = this.urlParser.createUrlState(segments, extras);
         tab.navigate(next);
         this.tabs.push(tab);
+        this.selectTab(tab.tabId);
         this.tabsSubject.next(this.tabs);
         this.addTabSubject.next({tab, next});
         //select tab
-        this.selectTab(tab.tabId);
     }
 
     selectTab(tabId: number) {
@@ -124,7 +124,7 @@ export class TabsManager {
                 this.selectTab(instance.tabId);
                 //step2: 如果之前实例化的组件,pathParams不一样
                 if (instance.href != next.href) {
-                    this.navigateSubject.next({next});
+                    this.navigateSubject.next({next, extras});
                     this.current.navigate(next);
                     this._publishGoBackSubject();
                     this._instances[next.route.path] = {
@@ -141,8 +141,8 @@ export class TabsManager {
             }
         } else { //如果是多组件模式
             if (this.current) { //如果当前有tab页
+                this.navigateSubject.next({next, extras});
                 this.current.navigate(next);
-                this.navigateSubject.next({next});
                 this._publishGoBackSubject();
             } else { //如果当前没有tab页，创建tab
                 this.addTab(segments, extras);
@@ -169,7 +169,6 @@ export class TabsManager {
 
     back() {
         if (this.current) {
-            let pre: UrlState = this.current.current;
             this.current.back();
             let next: UrlState = this.current.current;
             this.goBackSubject.next({next});

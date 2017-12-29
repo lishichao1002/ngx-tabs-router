@@ -8,6 +8,8 @@ import {RouterTab} from '../router/router_tab';
     template: `
         <div class="row" style="margin:20px;">
 
+            <button (click)="changeMode()">change mode: {{router.mode}}</button>
+
             <button class="btn btn-primary btn-xs" (click)="addTab()">add tab</button>
 
             <button *ngIf="canGo$ | async" class="btn btn-primary btn-xs" (click)="go()">Go</button>
@@ -41,10 +43,14 @@ export class RouterNavComponent {
 
     tabs$: Observable<RouterTab[]>;
 
-    constructor(private router: Router) {
+    constructor(public router: Router) {
         this.canGo$ = this.router.canGo$;
         this.canBack$ = this.router.canBack$;
         this.tabs$ = this.router.tabs;
+    }
+
+    changeMode() {
+        this.router.mode = this.router.mode == 'single' ? 'multiple' : 'single';
     }
 
     go() {
