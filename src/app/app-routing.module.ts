@@ -5,6 +5,7 @@ import {Demo2Component} from './demo/demo2.component';
 import {Demo3Component} from './demo/demo3.component';
 import {Routes} from './router/pojo/route';
 import {NotFoundComponent} from './demo/404.component';
+import {UniqueKeyService} from './uniquekey.service';
 
 const routes: Routes = [
     {
@@ -20,7 +21,8 @@ const routes: Routes = [
     {
         title: 'demo3',
         path: 'demo3/:name',
-        component: Demo3Component
+        component: Demo3Component,
+        uniqueKey: UniqueKeyService
     },
     {
         title: '404',

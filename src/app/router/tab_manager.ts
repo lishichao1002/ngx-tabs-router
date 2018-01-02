@@ -6,6 +6,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Fragment, isUrlStateEquals, UrlParser, UrlState} from './pojo/url_state';
 import {Snapshot} from './pojo/snapshot';
 import {Event} from './pojo/events';
+import {IRouteKey} from './pojo/route';
 
 /**
  * @internal
@@ -118,7 +119,20 @@ export class TabsManager {
         }
 
         if (mode == 'single') { //如果是单组件模式
-            let instance = this._instances[next.route.path];
+            let uniqueKey = '';
+            if (next.route.uniqueKey) {
+                if (typeof next.route.uniqueKey == 'string') {
+                    uniqueKey = next.route.path + '_' + next.route.uniqueKey;
+                } else {
+                    let routeKey: IRouteKey = this.injector.get(next.route.uniqueKey);
+                    let snapshot: Snapshot = new Snapshot({...next.pathParams, ...next.queryParams}, next.pathParams, next.queryParams, next.fragment);
+                    uniqueKey = next.route.path + '_' + routeKey.getUniqueKey(next.route, snapshot);
+                }
+            } else {
+                uniqueKey = next.route.path;
+            }
+
+            let instance = this._instances[uniqueKey];
             if (instance) {
                 //step1: 如果之前已经实例化过了
                 this.selectTab(instance.tabId);
@@ -127,14 +141,14 @@ export class TabsManager {
                     this.navigateSubject.next({next, extras});
                     this.current.navigate(next);
                     this._publishGoBackSubject();
-                    this._instances[next.route.path] = {
+                    this._instances[uniqueKey] = {
                         tabId: this.current.tabId,
                         href: next.href
                     };
                 }
             } else { //如果没有实例化过改组件
                 this.addTab(segments, extras);
-                this._instances[next.route.path] = {
+                this._instances[uniqueKey] = {
                     tabId: this.current.tabId,
                     href: next.href
                 };

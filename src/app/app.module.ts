@@ -8,6 +8,7 @@ import {AppRoutingModule} from './app-routing.module';
 import {Demo3Component} from './demo/demo3.component';
 import {RouterNavComponent} from './router-nav/router-nav.component';
 import {NotFoundComponent} from './demo/404.component';
+import {UniqueKeyService} from './uniquekey.service';
 
 @NgModule({
     declarations: [
@@ -22,7 +23,9 @@ import {NotFoundComponent} from './demo/404.component';
         BrowserModule,
         AppRoutingModule
     ],
-    providers: [],
+    providers: [
+        UniqueKeyService
+    ],
     bootstrap: [
         AppComponent
     ]

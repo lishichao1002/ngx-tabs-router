@@ -1,5 +1,6 @@
-import {InjectionToken, Type} from "@angular/core";
-import {RouterTab} from "../router_tab";
+import {InjectionToken, Type} from '@angular/core';
+import {RouterTab} from '../router_tab';
+import {Snapshot} from './snapshot';
 
 export type String = string;
 export type StringLike = () => string;
@@ -11,11 +12,16 @@ export interface ITitle {
 
 export type Title = ITitle | StringOrStringLike;
 
+export interface IRouteKey {
+    getUniqueKey(route: Route, snapshot: Snapshot): string;
+}
+
 export interface Route {
     title?: any; //Title
     path: string;
     component?: Type<any>;
     redirectTo?: string;
+    uniqueKey?: any;
 }
 
 export declare type Routes = Route[];
