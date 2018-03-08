@@ -22,6 +22,7 @@ export interface Route {
     component?: Type<any>;
     redirectTo?: string;
     uniqueKey?: any;
+    loadChildren?: any;
 }
 
 export declare type Routes = Route[];

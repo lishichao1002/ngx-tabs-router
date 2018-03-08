@@ -1,11 +1,11 @@
 import {NgModule} from '@angular/core';
-import {RouterModule} from './router/router.module';
 import {Demo1Component} from './demo/demo1.component';
 import {Demo2Component} from './demo/demo2.component';
 import {Demo3Component} from './demo/demo3.component';
-import {Routes} from './router/pojo/route';
 import {NotFoundComponent} from './demo/404.component';
 import {UniqueKeyService} from './uniquekey.service';
+import {Routes} from './router/pojo/route';
+import {RouterModule} from './router/router.module';
 
 const routes: Routes = [
     {
@@ -33,8 +33,31 @@ const routes: Routes = [
         title: '404',
         path: '(.*)',
         redirectTo: '/404'
+    },
+    /*{
+     path: 'dashboard',
+     loadChildren: './dashboard/dashboard.module#DashboardModule'
+     },*/
+    /*{
+     path: 'lazy',
+     loadChildren: () => new Promise(function (resolve, reject) {
+     (<any>require).ensure([], function (require: any) {
+     resolve(require('./dashboard/dashboard.module')['DashboardModule']);
+     }, function () {
+     reject({loadChunkError: true});
+     });
+     })
+     },*/
+    {
+        path: 'dashboard',
+        loadChildren: loadChildren_1
+        // loadChildren: () => import('./dashboard/dashboard.module').then((module) => module['DashboardModule'])
     }
 ];
+
+export function loadChildren_1() {
+    return import('./dashboard/dashboard.module.ngfactory').then(m => m.DashboardModuleNgFactory);
+}
 
 @NgModule({
     imports: [
