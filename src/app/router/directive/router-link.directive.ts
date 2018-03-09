@@ -110,14 +110,21 @@ export class RouterLinkWithHref {
 
     ngOnChanges(changes: {}): any {
         if (this.segments) {
-            this.urlParser.createUrlState(this.segments, {
+            this.href = this.urlParser.createUrlHref(this.segments, {
                 queryParams: this.queryParams,
                 queryParamsHandling: this.queryParamsHandling,
                 fragment: this.fragment,
                 preserveFragment: this.preserveFragment
-            }).then((urlState) => {
-                this.href = urlState.href;
             });
+
+            // this.urlParser.createUrlState(this.segments, {
+            //     queryParams: this.queryParams,
+            //     queryParamsHandling: this.queryParamsHandling,
+            //     fragment: this.fragment,
+            //     preserveFragment: this.preserveFragment
+            // }).then((urlState) => {
+            //     this.href = urlState.href;
+            // });
         }
     }
 

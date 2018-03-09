@@ -45,6 +45,29 @@ export class UrlParser {
         this._base_url = this.locationStrategy.getBaseHref();
     }
 
+    createUrlHref(segments: any[] | string, extras: NavigationExtras): string {
+        let {queryParams: curr_queryParams, fragment: curr_fragment} = this.parseHref(window.location.href);
+        let dist_param: QueryParams = {}, dist_fragment = '';
+
+        if (extras && !extras.queryParamsHandling) {
+            dist_param = extras.queryParams;
+        } else if (extras && extras.queryParamsHandling == 'merge') {
+            dist_param = {...curr_queryParams, ...extras.queryParams};
+        } else if (extras && extras.queryParamsHandling == 'preserve') {
+            dist_param = curr_queryParams;
+        }
+
+        if (extras && !extras.preserveFragment) {
+            dist_fragment = extras.fragment;
+        } else if (extras && extras.preserveFragment) {
+            dist_fragment = curr_fragment || extras.fragment;
+        }
+
+        let path = Array.isArray(segments) ? segments.join('/') : segments;
+        let uri = new URI(path || '').query(dist_param || {}).fragment(dist_fragment || '');
+        return `${this._base_url}${uri.toString()}`;
+    }
+
     createUrlState(_segments: any[] | string, extras: NavigationExtras): Promise<UrlState> {
         return new Promise((resolve, reject) => {
             let segments: any[] = Array.isArray(_segments) ? _segments : [_segments];
