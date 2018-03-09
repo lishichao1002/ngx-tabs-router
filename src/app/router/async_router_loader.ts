@@ -14,7 +14,8 @@ export class RouterConfigLoader {
             .pipe(
                 map((factory: NgModuleFactory<any>) => {
                     const module = factory.create(parentInjector);
-                    return new LoadedRouterConfig(module.injector.get(ROUTES), module);
+                    console.log(module.injector.get(ROUTES));
+                    return new LoadedRouterConfig((module.injector.get(ROUTES) as any[])[0], module);
                 })
             );
     }

@@ -19,12 +19,13 @@ export interface IRouteKey {
 }
 
 export interface Route {
-    title?: any; //Title
     path: string;
+    title?: any; //Title
     component?: Type<any>;
     redirectTo?: string;
     uniqueKey?: any;
     loadChildren?: LoadChildren;
+    _config?: LoadedRouterConfig;
 }
 
 export declare type Routes = Route[];

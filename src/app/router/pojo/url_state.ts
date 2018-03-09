@@ -69,8 +69,8 @@ export class UrlParser {
                     dist_fragment = extras.fragment;
                 } else if (extras && extras.preserveFragment) {
                     dist_fragment = curr_fragment || extras.fragment;
-                    resolve(this.buildUrlState(dist_route, segments, dist_pathParams, dist_param, dist_fragment));
                 }
+                return resolve(this.buildUrlState(dist_route, segments, dist_pathParams, dist_param, dist_fragment));
             });
         });
     }
@@ -113,33 +113,37 @@ export class UrlParser {
         return new Promise((resolve, reject) => {
             let path = segments.join('/');
             path = path.startsWith('/') ? path.substring(1) : path;
-            for (let i = 0; i < this.routers.length; i++) {
-                let route: Route = this.routers[i];
-                let regex = new RegExp(pathToRegexp(route.path));
-                if (regex.test(path)) {
-                    if (route.loadChildren) {
-                        const ngModule = this.injector.get(NgModuleRef);
-                        new RouterConfigLoader(this.loader, this.compiler).load(ngModule.injector, route).subscribe((config: LoadedRouterConfig) => {
-                            console.warn(config);
+            let matches = this.routers.filter((route: Route) => new RegExp(pathToRegexp(route.path)).test(path));
+            if (matches.length > 0) {
+                let route = matches[0];
+                if (route.loadChildren) {
+                    let ngModule = this.injector.get(NgModuleRef);
+                    new RouterConfigLoader(this.loader, this.compiler)
+                        .load(ngModule.injector, route)
+                        .subscribe((config: LoadedRouterConfig) => {
+                            this.mergeAsyncRoute(route, config);
+                            console.info('加载异步路由: ', config);
+                            console.info('加载异步路后的路由配置为: ', this.routers);
+                            resolve(this.parseRoute(segments));
                         });
-                    } else {
-                        let keys = [];
-                        let regexp = pathToRegexp(route.path, keys, {sensitive: true, strict: true});
-                        let pathParams: any = {};
-                        if (keys.length > 0) {
-                            let result = regexp.exec(path);
-                            for (let j = 0; j < keys.length; j++) {
-                                pathParams[keys[j].name] = result[j + 1];
-                            }
+                } else {
+                    let keys = [];
+                    let regexp = pathToRegexp(route.path, keys, {sensitive: true, strict: true});
+                    let pathParams: any = {};
+                    if (keys.length > 0) {
+                        let result = regexp.exec(path);
+                        for (let j = 0; j < keys.length; j++) {
+                            pathParams[keys[j].name] = result[j + 1];
                         }
-                        resolve({
-                            route: route,
-                            pathParams
-                        });
                     }
+                    resolve({
+                        route: route,
+                        pathParams
+                    });
                 }
+            } else {
+                reject();
             }
-            resolve(null);
         });
     }
 
@@ -157,6 +161,18 @@ export class UrlParser {
         } else {
             return uri1.segment();
         }
+    }
+
+    mergeAsyncRoute(parentRoute: Route, asyncRouteConfig: LoadedRouterConfig) {
+        let idx = this.routers.indexOf(parentRoute);
+        let asyncChildRoutes: Route[] = asyncRouteConfig.routes.map((subRoute: Route) => {
+            return {
+                ...subRoute,
+                _config: asyncRouteConfig,
+                path: [parentRoute.path, subRoute.path].join('')
+            };
+        });
+        this.routers.splice(idx, 1, ...asyncChildRoutes);
     }
 }
 

@@ -31,11 +31,6 @@ const routes: Routes = [
         uniqueKey: UniqueKeyService
     },
     {
-        title: '404',
-        path: '404',
-        component: NotFoundComponent
-    },
-    {
         path: 'dashboard',
         loadChildren: './dashboard/dashboard.module#DashboardModule',
         // loadChildren: () => new Promise<any>(function (resolve, reject) {
@@ -43,6 +38,11 @@ const routes: Routes = [
         //         resolve(require('./dashboard/dashboard.module').DashboardModule);
         //     });
         // })
+    },
+    {
+        title: '404',
+        path: '404',
+        component: NotFoundComponent
     },
     // {
     //     path: 'dashboard',

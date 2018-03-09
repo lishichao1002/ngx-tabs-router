@@ -8,10 +8,10 @@ import {
     Input,
     ViewChild,
     ViewContainerRef
-} from "@angular/core";
-import {Title} from "@angular/platform-browser";
-import {RouterTab} from "../router_tab";
-import {Router} from "../router";
+} from '@angular/core';
+import {Title} from '@angular/platform-browser';
+import {RouterTab} from '../router_tab';
+import {Router} from '../router';
 
 @Component({
     selector: 'router-tab',
@@ -36,10 +36,15 @@ export class RouterTabComponent {
     private _componentRef: ComponentRef<any>;
 
     initComponent() {
-        if (this.routerTab.current.route) {
-            const factory: ComponentFactory<any> = this.resolver.resolveComponentFactory(this.routerTab.current.route.component);
+        let route = this.routerTab.current.route;
+        if (route) {
+            let resolver = this.resolver;
+            if (route._config) {
+                resolver = route._config.module.componentFactoryResolver;
+            }
+            let factory: ComponentFactory<any> = resolver.resolveComponentFactory(route.component);
             this._componentRef = this._container.createComponent(factory);
-            this.titleService.setTitle(this.router.getTitle(this.routerTab.current.route, this.routerTab));
+            this.titleService.setTitle(this.router.getTitle(route, this.routerTab));
         }
     }
 
