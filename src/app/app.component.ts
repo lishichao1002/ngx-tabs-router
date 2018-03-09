@@ -31,6 +31,9 @@ import {Router} from './router/router';
                 <button routerLink="demo3/B" [queryParamsHandling]="'merge'">demo3B??</button>
             </li>
             <li>
+                <a [routerLink]="['dashboard']" queryParamsHandling="merge">dashboard</a>
+            </li>
+            <li>
                 <a [routerLink]="['xxxx']" queryParamsHandling="merge">404</a>
             </li>
         </ul>
@@ -49,25 +52,25 @@ export class AppComponent {
 
     ngOnInit() {
         console.warn('-----------------------INIT APP COMPONENT--------------------------');
-        this.router.events.subscribe((event) => {
-            console.log('app events', event);
-        });
-
-        this.router.params.subscribe((params) => {
-            console.log('app params ', params, this.router.tab.tabId);
-        });
-
-        this.router.queryParams.subscribe((queryParams) => {
-            console.log('app queryParams ', queryParams, this.router.tab.tabId);
-        });
-
-        this.router.pathParams.subscribe((pathParams) => {
-            console.log('app pathParams ', pathParams, this.router.tab.tabId);
-        });
-
-        this.router.fragment.subscribe((fragment) => {
-            console.log('app fragment ', fragment, this.router.tab.tabId);
-        });
+        // this.router.events.subscribe((event) => {
+        //     console.log('app events', event);
+        // });
+        //
+        // this.router.params.subscribe((params) => {
+        //     console.log('app params ', params, this.router.tab.tabId);
+        // });
+        //
+        // this.router.queryParams.subscribe((queryParams) => {
+        //     console.log('app queryParams ', queryParams, this.router.tab.tabId);
+        // });
+        //
+        // this.router.pathParams.subscribe((pathParams) => {
+        //     console.log('app pathParams ', pathParams, this.router.tab.tabId);
+        // });
+        //
+        // this.router.fragment.subscribe((fragment) => {
+        //     console.log('app fragment ', fragment, this.router.tab.tabId);
+        // });
     }
 
     ngOnDestroy() {

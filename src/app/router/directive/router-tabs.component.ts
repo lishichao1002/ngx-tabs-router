@@ -16,6 +16,7 @@ import {isParamsEquals, isUrlStateEquals, isUrlStateLike, UrlParser, UrlState} f
 import 'rxjs/add/operator/filter';
 import {Snapshot} from '../pojo/snapshot';
 import {AddTabEvent, NavigateEvent, RemoveTabEvent, SwitchTabEvent} from '../pojo/events';
+import {skip} from 'rxjs/operators';
 
 @Component({
     selector: 'router-tabs',
@@ -49,6 +50,7 @@ export class RouterTabsComponent implements OnInit {
 
                 let isPush: 'replaceState' | 'pushState' = extras.replaceUrl ? 'replaceState' : 'pushState';
                 this._publishEvents(tab.current, next, isPush);
+                tab.navigate(next);
                 componentRef.instance.initComponent();
                 this.changeDetectorRef.detectChanges();
             });
@@ -86,6 +88,7 @@ export class RouterTabsComponent implements OnInit {
                 let isPush: 'replaceState' | 'pushState' = extras.replaceUrl ? 'replaceState' : 'pushState';
                 if (isUrlStateLike(pre, next)) {
                     this._publishEvents(pre, next, isPush);
+                    this.router.tab.navigate(next);
                     console.log('路由相同，只更新路由地址参数，不重新创建路由组件');
                     return;
                 }
@@ -93,28 +96,43 @@ export class RouterTabsComponent implements OnInit {
 
                 componentRef.instance.destroyComponent();
                 this._publishEvents(pre, next, isPush);
+                this.router.tab.navigate(next);
                 componentRef.instance.initComponent();
                 this.changeDetectorRef.detectChanges();
             });
 
-        this.tabsManager.goBackSubject.filter(val => val != null)
-            .subscribe(({next}) => {
-                let pre = this.router.tab.current;
-                if (isUrlStateEquals(pre, next)) {
-                    return;
+        this.tabsManager.goBackSubject.pipe(skip(1))
+            .subscribe(({type}) => {
+                let pre = this.router.tab.pre;
+                let current = this.router.tab.current;
+                let next = this.router.tab.next;
+                if (type == 'go') {
+                    if (isUrlStateLike(current, next)) {
+                        this._publishEvents(current, next, 'replaceState');
+                        this.router.tab.go();
+                        console.log('路由相同，只更新路由地址参数，不重新创建路由组件');
+                        return;
+                    }
+                    let componentRef: ComponentRef<RouterTabComponent> = this._tabs.get(this.router.tab.tabId);
+                    componentRef.instance.destroyComponent();
+                    this._publishEvents(current, next, 'replaceState');
+                    this.router.tab.go();
+                    componentRef.instance.initComponent();
+                    this.changeDetectorRef.detectChanges();
+                } else if (type == 'back') {
+                    if (isUrlStateLike(current, pre)) {
+                        this._publishEvents(current, pre, 'replaceState');
+                        this.router.tab.back();
+                        console.log('路由相同，只更新路由地址参数，不重新创建路由组件');
+                        return;
+                    }
+                    let componentRef: ComponentRef<RouterTabComponent> = this._tabs.get(this.router.tab.tabId);
+                    componentRef.instance.destroyComponent();
+                    this._publishEvents(current, pre, 'replaceState');
+                    this.router.tab.back();
+                    componentRef.instance.initComponent();
+                    this.changeDetectorRef.detectChanges();
                 }
-
-                if (isUrlStateLike(pre, next)) {
-                    this._publishEvents(pre, next, 'replaceState');
-                    console.log('路由相同，只更新路由地址参数，不重新创建路由组件');
-                    return;
-                }
-
-                let componentRef: ComponentRef<RouterTabComponent> = this._tabs.get(this.router.tab.tabId);
-                componentRef.instance.destroyComponent();
-                this._publishEvents(pre, next, 'replaceState');
-                componentRef.instance.initComponent();
-                this.changeDetectorRef.detectChanges();
             });
     }
 

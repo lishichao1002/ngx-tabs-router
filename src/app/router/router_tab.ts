@@ -1,10 +1,10 @@
-import {Observable} from 'rxjs/Observable';
-import {Snapshot} from './pojo/snapshot';
-import {Fragment, UrlState} from './pojo/url_state';
-import {Params, PathParams, QueryParams} from './pojo/params';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Subject} from 'rxjs/Subject';
-import {Route} from './pojo/route';
+import {Observable} from "rxjs/Observable";
+import {Snapshot} from "./pojo/snapshot";
+import {Fragment, UrlState} from "./pojo/url_state";
+import {Params, PathParams, QueryParams} from "./pojo/params";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Subject} from "rxjs/Subject";
+import {Route} from "./pojo/route";
 
 let tabId: number = 0;
 
@@ -16,7 +16,6 @@ export class RouterTab {
     private _tabId: number;
     private _stack: UrlState[];
     private _stack_pointer: number;
-    private _pre: UrlState;
     private _current: UrlState;
 
     /** @internal */
@@ -44,7 +43,12 @@ export class RouterTab {
 
     /** @internal */
     get pre(): UrlState {
-        return this._pre;
+        return this._stack[this._stack_pointer - 1];
+    }
+
+    /** @internal */
+    get next(): UrlState {
+        return this._stack[this._stack_pointer + 1];
     }
 
     /** @internal */
@@ -77,7 +81,6 @@ export class RouterTab {
         }
         this._stack.push(urlState);
         this._stack_pointer++;
-        this._pre = this._current;
         this._current = urlState;
         this._canGoSubject.next(this.canGo());
         this._canBackSubject.next(this.canBack());

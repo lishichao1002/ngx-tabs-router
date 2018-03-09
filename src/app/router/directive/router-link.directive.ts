@@ -1,7 +1,7 @@
-import {Directive, HostBinding, HostListener, Input} from "@angular/core";
-import {QueryParamsHandling} from "../pojo/params";
-import {Router} from "../router";
-import {UrlParser} from "../pojo/url_state";
+import {Directive, HostBinding, HostListener, Input} from '@angular/core';
+import {QueryParamsHandling} from '../pojo/params';
+import {Router} from '../router';
+import {UrlParser} from '../pojo/url_state';
 
 @Directive({selector: ':not(a)[routerLink]'})
 export class RouterLink {
@@ -110,13 +110,14 @@ export class RouterLinkWithHref {
 
     ngOnChanges(changes: {}): any {
         if (this.segments) {
-            let urlState = this.urlParser.createUrlState(this.segments, {
+            this.urlParser.createUrlState(this.segments, {
                 queryParams: this.queryParams,
                 queryParamsHandling: this.queryParamsHandling,
                 fragment: this.fragment,
                 preserveFragment: this.preserveFragment
+            }).then((urlState) => {
+                this.href = urlState.href;
             });
-            this.href = urlState.href;
         }
     }
 

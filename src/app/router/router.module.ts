@@ -1,4 +1,13 @@
-import {ANALYZE_FOR_ENTRY_COMPONENTS, Inject, Injector, ModuleWithProviders, NgModule, Optional} from '@angular/core';
+import {
+    ANALYZE_FOR_ENTRY_COMPONENTS,
+    Inject,
+    Injector,
+    ModuleWithProviders,
+    NgModule,
+    NgModuleFactoryLoader,
+    Optional,
+    SystemJsNgModuleLoader
+} from '@angular/core';
 import {APP_BASE_HREF, CommonModule, Location, LocationStrategy, PathLocationStrategy, PlatformLocation} from '@angular/common';
 import {Router} from './router';
 import {RouterTabsComponent} from './directive/router-tabs.component';
@@ -47,6 +56,7 @@ export class RouterModule {
             providers: [
                 {provide: ANALYZE_FOR_ENTRY_COMPONENTS, multi: true, useValue: routes},
                 {provide: ROUTES, useValue: routes},
+                {provide: NgModuleFactoryLoader, useClass: SystemJsNgModuleLoader},
                 Router,
                 UrlParser,
                 {

@@ -1,4 +1,4 @@
-import {Injectable, Injector} from '@angular/core';
+import {Compiler, Injectable, Injector, NgModuleFactoryLoader} from '@angular/core';
 import {Location} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
 import {RouterTab} from './router_tab';
@@ -9,6 +9,7 @@ import {UrlParser} from './pojo/url_state';
 import {Event} from './pojo/events';
 import 'rxjs/add/observable/of';
 import {ITitle, Route} from './pojo/route';
+import {RouterConfigLoader} from './async_router_loader';
 
 /**
  //tabs
@@ -45,18 +46,21 @@ import {ITitle, Route} from './pojo/route';
 export class Router {
 
     private _init_url: string = window.location.href;
-
     private _mode: 'single' | 'multiple';
+    public configLoader: RouterConfigLoader;
 
     constructor(private tabsManager: TabsManager,
                 private urlParser: UrlParser,
                 private injector: Injector,
-                private location: Location) {
+                private location: Location,
+                private loader: NgModuleFactoryLoader,
+                private compiler: Compiler) {
         this._init();
+        this.configLoader = new RouterConfigLoader(loader, compiler);
     }
 
     private _init() {
-        this._mode = <any>window.localStorage.getItem('router_mode') || 'single';
+        this._mode = <any>window.localStorage.getItem('router_mode') || 'multiple';
         this._initDefaultState();
         this.location.subscribe((event: PopStateEvent) => {
             let {segments, queryParams, fragment} = this.urlParser.parseHref(window.location.href);

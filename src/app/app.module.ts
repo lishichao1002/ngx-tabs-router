@@ -1,4 +1,3 @@
-import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
@@ -9,6 +8,8 @@ import {Demo3Component} from './demo/demo3.component';
 import {RouterNavComponent} from './router-nav/router-nav.component';
 import {NotFoundComponent} from './demo/404.component';
 import {UniqueKeyService} from './uniquekey.service';
+import {CommonModule} from '@angular/common';
+import {BrowserModule} from '@angular/platform-browser';
 
 @NgModule({
     declarations: [
@@ -21,6 +22,7 @@ import {UniqueKeyService} from './uniquekey.service';
     ],
     imports: [
         BrowserModule,
+        CommonModule,
         AppRoutingModule
     ],
     providers: [
