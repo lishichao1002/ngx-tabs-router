@@ -26,7 +26,7 @@ const routes: Routes = [
     },
     {
         path: 'dashboard',
-        loadChildren: './dashboard/dashboard.module#DashboardModule'
+        loadChildren: 'app/dashboard/dashboard.module#DashboardModule'
     },
     {
         title: '404',
