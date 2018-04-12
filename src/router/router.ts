@@ -102,44 +102,18 @@ export class Router {
         return this.tabsManager.current;
     }
 
-    /**
-     * 1.创建tab组件
-     * 2.创建路由组件
-     * 3.更新url地址
-     * 4.广播url change事件
-     * 5.广播param change事件
-     */
     addTab(segments: any[] | string, extras: NavigationExtras = {}) {
         this.tabsManager.addTab(segments, extras);
     }
 
-    /**
-     * 1.切换tab组件
-     * 2.更新url地址
-     * 3.广播切换tab事件
-     * 4.广播url change事件
-     */
     selectTab(tabId: number) {
         this.tabsManager.selectTab(tabId);
     }
 
-    /**
-     * 1.删除当前tab
-     * 2.选中上个tab
-     * 3.更新url地址
-     * 4.广播切换tab事件
-     * 5.广播url change事件
-     */
     removeTab(tabId: number) {
         this.tabsManager.removeTab(tabId);
     }
 
-    /**
-     * 1.创建路由组件
-     * 2.更新url地址
-     * 3.广播url change事件
-     * 4.广播param change事件
-     */
     navigate(segments: any[] | string, extra: NavigationExtras) {
         this.navigateByUrl(segments, extra);
     }
