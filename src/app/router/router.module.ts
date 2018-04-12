@@ -12,11 +12,12 @@ import {APP_BASE_HREF, CommonModule, Location, LocationStrategy, PathLocationStr
 import {Router} from './router';
 import {RouterTabsComponent} from './directive/router-tabs.component';
 import {RouterTabComponent} from './directive/router-tab.component';
-import {Routes, ROUTES} from './pojo/route';
+import {Routes} from './pojo/route';
 import {UrlParser} from './pojo/url_state';
 import {RouterLink, RouterLinkWithHref} from './directive/router-link.directive';
 import {RouterLinkActive} from './directive/router_link_active';
 import {TabsManager} from './tab_manager';
+import {ROUTES} from '@angular/router';
 
 export function provideLocationStrategy(platformLocationStrategy: PlatformLocation, baseHref: string) {
     return new PathLocationStrategy(platformLocationStrategy, baseHref);
@@ -55,7 +56,7 @@ export class RouterModule {
             ngModule: RouterModule,
             providers: [
                 {provide: ANALYZE_FOR_ENTRY_COMPONENTS, multi: true, useValue: routes},
-                {provide: ROUTES, useValue: routes},
+                {provide: ROUTES, useValue: routes, multi: true},
                 {provide: NgModuleFactoryLoader, useClass: SystemJsNgModuleLoader},
                 Router,
                 UrlParser,

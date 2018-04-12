@@ -1,7 +1,8 @@
 import {Compiler, Injector, NgModuleFactory, NgModuleFactoryLoader} from '@angular/core';
-import {LoadChildren, LoadedRouterConfig, Route, ROUTES} from './pojo/route';
+import {LoadChildren, LoadedRouterConfig, Route} from './pojo/route';
 import {Observable} from 'rxjs/Observable';
 import {map} from 'rxjs/operators';
+import {ROUTES} from '@angular/router';
 
 export class RouterConfigLoader {
     constructor(private loader: NgModuleFactoryLoader,

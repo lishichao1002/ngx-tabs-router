@@ -1,10 +1,11 @@
-import {LoadedRouterConfig, Route, ROUTES} from './route';
+import {LoadedRouterConfig, Route} from './route';
 import * as URI from 'urijs';
 import * as pathToRegexp from 'path-to-regexp';
 import {NavigationExtras, Params, PathParams, QueryParams} from './params';
 import {Compiler, forwardRef, Inject, Injectable, Injector, NgModuleFactoryLoader, NgModuleRef} from '@angular/core';
 import {LocationStrategy} from '@angular/common';
 import {RouterConfigLoader} from '../async_router_loader';
+import {ROUTES} from '@angular/router';
 
 export type UrlSegment = string;
 export type Fragment = string;
@@ -35,14 +36,16 @@ export class UrlState {
 export class UrlParser {
 
     private _base_url: string;
+    private routers: Route[];
 
     constructor(@Inject(forwardRef(() => ROUTES))
-                private routers: Route[],
+                private routeres: Route[][],
                 private injector: Injector,
                 private loader: NgModuleFactoryLoader,
                 private compiler: Compiler,
                 private locationStrategy: LocationStrategy) {
         this._base_url = this.locationStrategy.getBaseHref();
+        this.routers = this.routeres[0];
     }
 
     createUrlHref(segments: any[] | string, extras: NavigationExtras): string {

@@ -1,4 +1,4 @@
-import {InjectionToken, NgModuleRef, Type} from '@angular/core';
+import {NgModuleRef, Type} from '@angular/core';
 import {RouterTab} from '../router_tab';
 import {Snapshot} from './snapshot';
 
@@ -29,8 +29,6 @@ export interface Route {
 }
 
 export declare type Routes = Route[];
-
-export const ROUTES = new InjectionToken<Routes>('ROUTES');
 
 export class LoadedRouterConfig {
     constructor(public routes: Route[], public module: NgModuleRef<any>) {
