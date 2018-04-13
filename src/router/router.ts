@@ -102,22 +102,57 @@ export class Router {
         return this.tabsManager.current;
     }
 
+    /**
+     * 1.创建tab组件
+     * 2.广播add tab事件
+     * 3.更新url地址
+     * 4.创建路由组件
+     * 5.广播url change事件
+     * 6.广播全局param change事件
+     * 7.广播tab内param change事件
+     */
     addTab(segments: any[] | string, extras: NavigationExtras = {}) {
         this.tabsManager.addTab(segments, extras);
     }
 
+    /**
+     * 1.切换tab组件
+     * 2.更新url地址
+     * 3.广播切换tab事件
+     * 4.广播url change事件
+     * 5.广播全局param change事件
+     */
     selectTab(tabId: number) {
         this.tabsManager.selectTab(tabId);
     }
 
+    /**
+     * 1.删除当前tab
+     * 2.广播删除tab事件
+     * 3.选中上个tab
+     * 4.更新url地址
+     * 5.广播切换tab事件
+     * 6.广播url change事件
+     * 7.广播全局param change事件
+     */
     removeTab(tabId: number) {
         this.tabsManager.removeTab(tabId);
     }
 
+    /**
+     * 1.创建路由组件
+     * 2.更新url地址
+     * 3.广播url change事件
+     * 4.广播局部url change事件
+     * 5.广播全局param change事件
+     */
     navigate(segments: any[] | string, extra: NavigationExtras) {
         this.navigateByUrl(segments, extra);
     }
 
+    /**
+     * 见@navigate
+     */
     navigateByUrl(segments: any[] | string, extras: NavigationExtras) {
         this.tabsManager.navigateByUrl(segments, extras, this.mode);
     }
@@ -162,6 +197,9 @@ export class Router {
         return this.tabsManager.canBackSubject.asObservable();
     }
 
+    /**
+     * 见@navigate
+     */
     go(): void {
         this.tabsManager.go();
     }
@@ -170,6 +208,9 @@ export class Router {
         this.tabsManager.back();
     }
 
+    /**
+     * 见@navigate
+     */
     getTitle(route: Route, tab: RouterTab): string {
         if (route) {
             if (route.title) {
