@@ -1,5 +1,4 @@
 import {Component} from '@angular/core';
-import {Router} from '../router/router';
 
 @Component({
     selector: 'not-found',
@@ -8,17 +7,5 @@ import {Router} from '../router/router';
     `
 })
 export class NotFoundComponent {
-
-    constructor(private router: Router) {
-    }
-
-    ngOnInit() {
-        console.warn('-------------------------------------------------');
-        console.log('404 init');
-    }
-
-    ngOnDestroy() {
-        console.log('404 destroy');
-    }
 
 }

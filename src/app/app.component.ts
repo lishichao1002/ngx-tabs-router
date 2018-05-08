@@ -1,79 +1,50 @@
-import {Component} from '@angular/core';
-import {Router} from './router/router';
+import {
+    Component,
+    ComponentFactory,
+    ComponentRef,
+    Injector,
+    NgModuleFactory,
+    NgModuleFactoryLoader,
+    NgModuleRef,
+    ViewChild,
+    ViewContainerRef
+} from '@angular/core';
+import {ROUTES} from '@angular/router';
+import {Route} from './router/router.module';
 
 @Component({
     selector: 'app-root',
-    styles: [`
-        .selected, .selected a {
-            color: red;
-            border: 1px solid red;
-        }
-    `],
     template: `
-        <ul>
-            <li>
-                <button routerLink="demo1" [queryParamsHandling]="''">demo1?</button>
-                <button routerLink="demo1" [queryParamsHandling]="''" [queryParams]="{a: '1'}">demo1?a</button>
-                <button routerLink="demo1" [queryParamsHandling]="'merge'">demo1??</button>
-            </li>
-            <li>
-                <button routerLink="demo2" [queryParamsHandling]="''">demo2?</button>
-                <button routerLink="demo2" [queryParamsHandling]="''" [queryParams]="{b: '1'}">demo2?b</button>
-                <button routerLink="demo2" [queryParamsHandling]="'merge'">demo2??</button>
-            <li>
-                <button routerLink="demo3/A" [queryParamsHandling]="''">demo3A?</button>
-                <button routerLink="demo3/A" [queryParamsHandling]="''" [queryParams]="{c: '1'}">demo3A?c</button>
-                <button routerLink="demo3/A" [queryParamsHandling]="'merge'">demo3A??</button>
-            </li>
-            <li>
-                <button routerLink="demo3/B" [queryParamsHandling]="''">demo3B?</button>
-                <button routerLink="demo3/B" [queryParamsHandling]="''" [queryParams]="{d: '1'}">demo3B?d</button>
-                <button routerLink="demo3/B" [queryParamsHandling]="'merge'">demo3B??</button>
-            </li>
-            <li>
-                <a [routerLink]="['dashboard']" queryParamsHandling="merge">dashboard</a>
-            </li>
-            <li>
-                <a [routerLink]="['xxxx']" queryParamsHandling="merge">404</a>
-            </li>
-        </ul>
+        <h1>Router Demo</h1>
 
-        <router-nav></router-nav>
-        <div class="row" style="margin:20px;">
-            <router-tabs></router-tabs>
-        </div>
+        <ng-container #container>
+
+        </ng-container>
     `
 })
 export class AppComponent {
 
-    constructor(private router: Router) {
+    @ViewChild('container', {read: ViewContainerRef})
+    container: ViewContainerRef;
+
+    constructor(public parentInjector: Injector,
+                public loader: NgModuleFactoryLoader) {
 
     }
 
     ngOnInit() {
-        console.warn('-----------------------INIT APP COMPONENT--------------------------');
-        // this.router.events.subscribe((event) => {
-        //     console.log('app events', event);
-        // });
-        //
-        // this.router.params.subscribe((params) => {
-        //     console.log('app params ', params, this.router.tab.tabId);
-        // });
-        //
-        // this.router.queryParams.subscribe((queryParams) => {
-        //     console.log('app queryParams ', queryParams, this.router.tab.tabId);
-        // });
-        //
-        // this.router.pathParams.subscribe((pathParams) => {
-        //     console.log('app pathParams ', pathParams, this.router.tab.tabId);
-        // });
-        //
-        // this.router.fragment.subscribe((fragment) => {
-        //     console.log('app fragment ', fragment, this.router.tab.tabId);
-        // });
-    }
 
-    ngOnDestroy() {
+        this.loader
+            .load('app/dashboard/dashboard.module#DashboardModule')
+            .then((factory: NgModuleFactory<any>) => {
+                const moduleRef: NgModuleRef<any> = factory.create(this.parentInjector);
+                let routers: Route[] = moduleRef.injector.get(ROUTES)[0] as any;
+                let componentFactory: ComponentFactory<any> = moduleRef.componentFactoryResolver.resolveComponentFactory(routers[0].component);
+                let componentRef: ComponentRef<any> = this.container.createComponent(componentFactory);
+
+                console.log('child routers : ', routers);
+            });
+
 
     }
 
