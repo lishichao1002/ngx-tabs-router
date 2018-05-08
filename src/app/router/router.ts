@@ -1,4 +1,4 @@
-import {Compiler, Injectable, Injector, NgModuleFactoryLoader} from '@angular/core';
+import {Injectable, Injector, NgModuleFactoryLoader} from '@angular/core';
 import {Location} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
 import {RouterTab} from './router_tab';
@@ -53,10 +53,9 @@ export class Router {
                 private urlParser: UrlParser,
                 private injector: Injector,
                 private location: Location,
-                private loader: NgModuleFactoryLoader,
-                private compiler: Compiler) {
+                private loader: NgModuleFactoryLoader) {
         this._init();
-        this.configLoader = new RouterConfigLoader(loader, compiler);
+        this.configLoader = new RouterConfigLoader(loader);
     }
 
     private _init() {
@@ -204,13 +203,13 @@ export class Router {
         this.tabsManager.go();
     }
 
-    /**
-     * 见@navigate
-     */
     back(): void {
         this.tabsManager.back();
     }
 
+    /**
+     * 见@navigate
+     */
     getTitle(route: Route, tab: RouterTab): string {
         if (route) {
             if (route.title) {

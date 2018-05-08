@@ -1,12 +1,12 @@
-import {Compiler, Injector, NgModuleFactory, NgModuleFactoryLoader} from '@angular/core';
+import {Injector, NgModuleFactory, NgModuleFactoryLoader} from '@angular/core';
 import {LoadChildren, LoadedRouterConfig, Route} from './pojo/route';
 import {Observable} from 'rxjs/Observable';
 import {map} from 'rxjs/operators';
 import {ROUTES} from '@angular/router';
 
 export class RouterConfigLoader {
-    constructor(private loader: NgModuleFactoryLoader,
-                private compiler: Compiler) {
+
+    constructor(private loader: NgModuleFactoryLoader) {
     }
 
     load(parentInjector: Injector, route: Route): Observable<LoadedRouterConfig> {
@@ -23,14 +23,6 @@ export class RouterConfigLoader {
 
     private loadModuleFactory(loadChildren: LoadChildren): Observable<NgModuleFactory<any>> {
         return Observable.create((observer) => {
-            // loadChildren()
-            //     .then((module: any) => {
-            //         return this.compiler.compileModuleAndAllComponentsAsync(module);
-            //     })
-            //     .then((module) => {
-            //         observer.next(module.ngModuleFactory);
-            //         observer.complete();
-            //     });
             this.loader.load(loadChildren).then((factory) => {
                 observer.next(factory);
                 observer.complete();

@@ -144,7 +144,7 @@ export class UrlParser {
                 let route = matches[0];
                 if (route.loadChildren) {
                     let ngModule = this.injector.get(NgModuleRef);
-                    new RouterConfigLoader(this.loader, this.compiler)
+                    new RouterConfigLoader(this.loader)
                         .load(ngModule.injector, route)
                         .subscribe((config: LoadedRouterConfig) => {
                             this.mergeAsyncRoute(route, config);
